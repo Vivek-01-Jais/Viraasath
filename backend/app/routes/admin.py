@@ -154,13 +154,9 @@ async def dashboard(current_user_id: str = Depends(get_admin_user), supabase: As
 
 
 @router.get("/products")
-async def list_products_admin(current_user_id: str = Depends(get_admin_user), supabase: AsyncClient = Depends(get_async_supabase)):
+async def list_products_admin(offset: int = 0, limit: int = 50, current_user_id: str = Depends(get_admin_user), supabase: AsyncClient = Depends(get_async_supabase)):
     try:
-        page = 1
-        page_size = 50
-        from_ = (page - 1) * page_size
-        to_ = from_ + page_size - 1
-        result = await supabase.table("products").select("*, category:categories(*), product_variants(*), product_images(*)", count="exact").order("created_at", desc=True).range(from_, to_).execute()
+        result = await supabase.table("products").select("*, category:categories(*), product_variants(*), product_images(*)", count="exact").order("created_at", desc=True).range(offset, offset + limit - 1).execute()
         return {"products": result.data or [], "total": result.count or 0}
     except HTTPException:
         raise
@@ -211,13 +207,9 @@ async def delete_product(product_id: str, current_user_id: str = Depends(get_adm
 
 
 @router.get("/orders")
-async def list_orders_admin(current_user_id: str = Depends(get_admin_user), supabase: AsyncClient = Depends(get_async_supabase)):
+async def list_orders_admin(offset: int = 0, limit: int = 50, current_user_id: str = Depends(get_admin_user), supabase: AsyncClient = Depends(get_async_supabase)):
     try:
-        page = 1
-        page_size = 50
-        from_ = (page - 1) * page_size
-        to_ = from_ + page_size - 1
-        result = await supabase.table("orders").select("*", count="exact").order("created_at", desc=True).range(from_, to_).execute()
+        result = await supabase.table("orders").select("*", count="exact").order("created_at", desc=True).range(offset, offset + limit - 1).execute()
         return {"orders": result.data or [], "total": result.count or 0}
     except HTTPException:
         raise
@@ -257,13 +249,9 @@ async def update_order_status(order_id: str, body: OrderStatusUpdate, current_us
 
 
 @router.get("/customers")
-async def list_customers(current_user_id: str = Depends(get_admin_user), supabase: AsyncClient = Depends(get_async_supabase)):
+async def list_customers(offset: int = 0, limit: int = 50, current_user_id: str = Depends(get_admin_user), supabase: AsyncClient = Depends(get_async_supabase)):
     try:
-        page = 1
-        page_size = 50
-        from_ = (page - 1) * page_size
-        to_ = from_ + page_size - 1
-        result = await supabase.table("profiles").select("*", count="exact").eq("role", "customer").order("created_at", desc=True).range(from_, to_).execute()
+        result = await supabase.table("profiles").select("*", count="exact").eq("role", "customer").order("created_at", desc=True).range(offset, offset + limit - 1).execute()
         return {"customers": result.data or [], "total": result.count or 0}
     except HTTPException:
         raise
@@ -277,13 +265,9 @@ class ReviewUpdate(BaseModel):
 
 
 @router.get("/reviews")
-async def list_reviews_admin(current_user_id: str = Depends(get_admin_user), supabase: AsyncClient = Depends(get_async_supabase)):
+async def list_reviews_admin(offset: int = 0, limit: int = 50, current_user_id: str = Depends(get_admin_user), supabase: AsyncClient = Depends(get_async_supabase)):
     try:
-        page = 1
-        page_size = 50
-        from_ = (page - 1) * page_size
-        to_ = from_ + page_size - 1
-        result = await supabase.table("reviews").select("*, product:products(name), profile:profiles(full_name)", count="exact").order("created_at", desc=True).range(from_, to_).execute()
+        result = await supabase.table("reviews").select("*, product:products(name), profile:profiles(full_name)", count="exact").order("created_at", desc=True).range(offset, offset + limit - 1).execute()
         return {"reviews": result.data or [], "total": result.count or 0}
     except HTTPException:
         raise
@@ -339,10 +323,10 @@ class CouponUpdate(BaseModel):
 
 
 @router.get("/categories")
-async def list_categories(current_user_id: str = Depends(get_admin_user), supabase: AsyncClient = Depends(get_async_supabase)):
+async def list_categories(offset: int = 0, limit: int = 100, current_user_id: str = Depends(get_admin_user), supabase: AsyncClient = Depends(get_async_supabase)):
     try:
-        result = await supabase.table("categories").select("*").order("name").execute()
-        return result.data or []
+        result = await supabase.table("categories").select("*", count="exact").order("name").range(offset, offset + limit - 1).execute()
+        return {"categories": result.data or [], "total": result.count or 0}
     except HTTPException:
         raise
     except Exception as e:
@@ -392,10 +376,10 @@ async def delete_category(category_id: str, current_user_id: str = Depends(get_a
 
 
 @router.get("/coupons")
-async def list_coupons(current_user_id: str = Depends(get_admin_user), supabase: AsyncClient = Depends(get_async_supabase)):
+async def list_coupons(offset: int = 0, limit: int = 50, current_user_id: str = Depends(get_admin_user), supabase: AsyncClient = Depends(get_async_supabase)):
     try:
-        result = await supabase.table("coupons").select("*").order("code").execute()
-        return result.data or []
+        result = await supabase.table("coupons").select("*", count="exact").order("code").range(offset, offset + limit - 1).execute()
+        return {"coupons": result.data or [], "total": result.count or 0}
     except HTTPException:
         raise
     except Exception as e:
