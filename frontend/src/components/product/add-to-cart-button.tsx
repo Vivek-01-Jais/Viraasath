@@ -8,13 +8,13 @@ import { toast } from "sonner"
 import { ShoppingBag, Check } from "lucide-react"
 import type { Product } from "@/types/product"
 
-export function AddToCartButton({ product }: { product: Product }) {
+export function AddToCartButton({ product, variantId }: { product: Product; variantId?: string | null }) {
   const { user } = useAuth()
   const { addItem, openCart } = useCartStore()
   const [added, setAdded] = useState(false)
 
   async function handleAddToCart() {
-    await addItem(user?.id ?? null, product)
+    await addItem(user?.id ?? null, product, variantId || undefined)
     setAdded(true)
     toast.success("Added to cart!", {
       action: { label: "View Cart", onClick: () => openCart() },
