@@ -1,96 +1,27 @@
 import { Suspense } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { ProductCard } from "@/components/product/product-card"
-import { getCategories, getProducts } from "@/lib/queries/products"
+import { Header } from "@/components/header"
+import { ProductGridSkeleton } from "@/components/ui/skeleton"
+import { ProductGrid } from "@/components/product/product-grid"
 
 export const dynamic = "force-dynamic"
 
-type Props = {
-  searchParams: Promise<{ category?: string }>
-}
-
-async function ProductGrid({ category }: { category?: string }) {
-  const [products, categories] = await Promise.all([
-    getProducts(category ? { category } : undefined),
-    getCategories(),
-  ])
-
-  const activeCategory = categories.find((c) => c.id === category)
-
-  return (
-    <>
-      <div className="flex flex-wrap items-center gap-2 mb-8">
-        <Link
-          href="/products"
-          className={`text-sm px-3 py-1.5 rounded-full border transition-colors ${
-            !category
-              ? "bg-zinc-900 text-white border-zinc-900"
-              : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-400"
-          }`}
-        >
-          All
-        </Link>
-        {categories.map((cat) => (
-          <Link
-            key={cat.id}
-            href={`/products?category=${cat.id}`}
-            className={`text-sm px-3 py-1.5 rounded-full border transition-colors ${
-              category === cat.id
-                ? "bg-zinc-900 text-white border-zinc-900"
-                : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-400"
-            }`}
-          >
-            {cat.name}
-          </Link>
-        ))}
-      </div>
-
-      {activeCategory && (
-        <p className="text-sm text-zinc-500 mb-6">{activeCategory.description}</p>
-      )}
-
-      <p className="text-sm text-zinc-400 mb-6">{products.length} products</p>
-
-      {products.length === 0 ? (
-        <div className="text-center py-24">
-          <p className="text-zinc-500">No products found in this category.</p>
-          <Link href="/products">
-            <Button variant="outline" className="mt-4">View all products</Button>
-          </Link>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-      )}
-    </>
-  )
-}
-
-export default async function ProductsPage({ searchParams }: Props) {
-  const { category } = await searchParams
-
+export default function ProductsPage() {
   return (
     <div className="flex flex-col flex-1">
-      <header className="flex items-center justify-between px-6 py-4 border-b">
-        <Link href="/" className="text-xl font-semibold tracking-tight">Viraasat</Link>
-        <nav className="flex items-center gap-4">
-          <span className="text-sm text-zinc-800 font-medium">Shop</span>
-          <Link href="/login" className="text-sm text-zinc-500 hover:text-zinc-800">Sign in</Link>
-        </nav>
-      </header>
+      <Header />
 
       <main className="flex-1 px-6 py-8 max-w-7xl mx-auto w-full">
-        <h1 className="text-2xl font-bold mb-2">All Kurtis</h1>
-        <p className="text-zinc-500 text-sm mb-8">
-          Discover our collection of handcrafted kurtis for every occasion
-        </p>
+        <div className="mb-8">
+          <span className="text-[#800020] dark:text-[#B8860B] text-xs tracking-[0.2em] uppercase font-medium">Collection</span>
+          <h1 className="font-heading text-4xl mt-1 text-[#333] dark:text-[#F0EDE8]">All Products</h1>
+          <p className="text-[#6B6B6B] dark:text-[#9C9C9C] text-sm mt-2">
+            Discover our collection of handcrafted ethnic wear for every occasion
+          </p>
+          <div className="w-16 h-0.5 bg-[#C5A028] mt-4" />
+        </div>
 
-        <Suspense fallback={<div className="text-center py-24 text-zinc-400">Loading...</div>}>
-          <ProductGrid category={category} />
+        <Suspense fallback={<ProductGridSkeleton />}>
+          <ProductGrid />
         </Suspense>
       </main>
     </div>

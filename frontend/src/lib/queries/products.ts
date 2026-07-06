@@ -1,7 +1,11 @@
-import { createClient } from "@/lib/supabase/client"
 import type { Product, Category } from "@/types/product"
+import { getDemoModule } from "@/lib/demo-loader"
 
 export async function getCategories(): Promise<Category[]> {
+  const demo = await getDemoModule()
+  if (demo) return demo.demoCategories
+
+  const { createClient } = await import("@/lib/supabase/client")
   const supabase = createClient()
   const { data } = await supabase
     .from("categories")
@@ -13,8 +17,23 @@ export async function getCategories(): Promise<Category[]> {
 
 export async function getProducts(filters?: {
   category?: string
-}): Promise<Product[]> {
+  query?: string
+  page?: number
+  pageSize?: number
+}): Promise<{ products: Product[]; total: number }> {
+  const demo = await getDemoModule()
+  if (demo) {
+    const result = demo.getDemoProducts(filters)
+    return { products: result, total: result.length }
+  }
+
+  const { createClient } = await import("@/lib/supabase/client")
   const supabase = createClient()
+  const page = filters?.page ?? 1
+  const pageSize = filters?.pageSize ?? 20
+  const from = (page - 1) * pageSize
+  const to = from + pageSize - 1
+
   let query = supabase
     .from("products")
     .select(`
@@ -22,18 +41,29 @@ export async function getProducts(filters?: {
       category:categories(*),
       product_variants(*),
       product_images(*)
-    `)
+    `, { count: "exact" })
     .eq("is_active", true)
 
   if (filters?.category) {
     query = query.eq("category_id", filters.category)
   }
 
-  const { data } = await query.order("created_at", { ascending: false })
-  return data ?? []
+  if (filters?.query) {
+    query = query.textSearch("search_vector", filters.query, { config: "english" })
+  }
+
+  const { data, count } = await query
+    .order("created_at", { ascending: false })
+    .range(from, to)
+
+  return { products: data ?? [], total: count ?? 0 }
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
+  const demo = await getDemoModule()
+  if (demo) return demo.getDemoProductBySlug(slug)
+
+  const { createClient } = await import("@/lib/supabase/client")
   const supabase = createClient()
   const { data } = await supabase
     .from("products")
@@ -44,11 +74,15 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       product_images(*)
     `)
     .eq("slug", slug)
-    .single()
+    .maybeSingle()
   return data
 }
 
 export async function getFeaturedProducts(): Promise<Product[]> {
+  const demo = await getDemoModule()
+  if (demo) return demo.getDemoFeaturedProducts()
+
+  const { createClient } = await import("@/lib/supabase/client")
   const supabase = createClient()
   const { data } = await supabase
     .from("products")

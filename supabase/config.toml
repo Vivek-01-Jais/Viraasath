@@ -1,0 +1,20 @@
+[project]
+ref = "tzdkydvsqqktdjbidzjs"
+name = "viraasat"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+
+[db]
+major_version = 15
+
+[auth]
+enabled = true
+
+[imports]
+enabled = true
+
+[migrations]
+directory = "./migrations"

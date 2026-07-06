@@ -1,7 +1,6 @@
 node_modules/
 .next/
-.env
-.env.local
+.env*
 __pycache__/
 *.pyc
 .venv/
@@ -11,3 +10,7 @@ venv/
 # IDE
 .vscode/
 .idea/
+
+# Generated reports
+*.docx
+*.pdf
