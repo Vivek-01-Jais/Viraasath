@@ -20,10 +20,9 @@ export function SearchCommand() {
   }, [open])
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (query.length < 1) { setResults([]); return }
-    const q = query.toLowerCase()
-    const doSearch = async () => {
+    const timer = setTimeout(async () => {
+      const q = query.toLowerCase()
       const demo = await getDemoModule()
       if (demo) {
         setResults(demo.demoProducts.filter(p => p.name.toLowerCase().includes(q) || (p.description && p.description.toLowerCase().includes(q))).slice(0, 6))
@@ -33,8 +32,8 @@ export function SearchCommand() {
         const { data } = await supabase.from("products").select("id, name, slug, price").ilike("name", `%${q}%`).limit(6)
         setResults(data ?? [])
       }
-    }
-    doSearch()
+    }, 300)
+    return () => clearTimeout(timer)
   }, [query])
 
   useEffect(() => {

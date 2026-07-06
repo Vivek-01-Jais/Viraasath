@@ -62,16 +62,6 @@ export default function WishlistPage() {
     saveSnapshots(snapshots)
   }, [items])
 
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push("/login")
-      return
-    }
-    if (user) {
-      fetchWishlist(user.id)
-    }
-  }, [user, authLoading, fetchWishlist, router])
-
   if (authLoading || !user) {
     return (
       <div className="flex flex-col flex-1">

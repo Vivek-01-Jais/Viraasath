@@ -32,26 +32,27 @@ export function ReviewSection({ productId }: { productId: string }) {
   const fileRef = useRef<HTMLInputElement>(null)
   const [zoomedImage, setZoomedImage] = useState<string | null>(null)
 
-  useEffect(() => {
-    async function loadReviews() {
-      if (!isSupabaseAvailable()) { setLoading(false); return }
-      const supabase = createClient()
-      const { data } = await supabase
-        .from("reviews")
-        .select("*, profile:profiles(full_name)")
-        .eq("product_id", productId)
-        .eq("is_approved", true)
-        .order("created_at", { ascending: false })
+  async function loadReviews() {
+    if (!isSupabaseAvailable()) { setLoading(false); return }
+    const supabase = createClient()
+    const { data } = await supabase
+      .from("reviews")
+      .select("*, profile:profiles(full_name)")
+      .eq("product_id", productId)
+      .eq("is_approved", true)
+      .order("created_at", { ascending: false })
 
-      const reviewsData = data ?? []
-      setReviews(reviewsData)
-      if (reviewsData.length > 0) {
-        const avg = reviewsData.reduce((s: number, r: Review) => s + r.rating, 0) / reviewsData.length
-        setAverage(Math.round(avg * 10) / 10)
-        setTotal(reviewsData.length)
-      }
-      setLoading(false)
+    const reviewsData = data ?? []
+    setReviews(reviewsData)
+    if (reviewsData.length > 0) {
+      const avg = reviewsData.reduce((s: number, r: Review) => s + r.rating, 0) / reviewsData.length
+      setAverage(Math.round(avg * 10) / 10)
+      setTotal(reviewsData.length)
     }
+    setLoading(false)
+  }
+
+  useEffect(() => {
     loadReviews()
   }, [productId])
 
@@ -104,6 +105,7 @@ export function ReviewSection({ productId }: { productId: string }) {
         setComment("")
         setFiles([])
         setPreviews([])
+        loadReviews()
       }
     } catch {
       toast.error("Failed to submit review")

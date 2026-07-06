@@ -53,8 +53,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const newUser = session?.user ?? null
         setUser(newUser)
         if (newUser) {
-          useCartStore.getState().mergeGuestCart(newUser.id)
-          useCartStore.getState().fetchCart(newUser.id)
+          useCartStore.getState().mergeGuestCart(newUser.id).then(() => {
+            useCartStore.getState().fetchCart(newUser.id)
+          })
         } else {
           useCartStore.getState().initLocalCart()
         }

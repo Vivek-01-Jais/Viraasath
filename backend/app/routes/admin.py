@@ -6,6 +6,7 @@ from app.core.auth import get_admin_user
 from supabase._async.client import AsyncClient
 import logging
 import uuid
+import httpx
 
 logger = logging.getLogger(__name__)
 
