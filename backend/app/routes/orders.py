@@ -74,7 +74,8 @@ async def apply_coupon(coupon_code: str | None, subtotal: float, supabase: Async
         return 0, None
     if c.get("min_cart_value", 0) > subtotal:
         return 0, None
-    raw_discount = subtotal * float(c["discount_value"]) / 100 if c["discount_type"] == "percentage" else float(c["discount_value"])
+    discount_value = float(c.get("discount_value", 0) or 0)
+    raw_discount = subtotal * discount_value / 100 if c["discount_type"] == "percentage" else discount_value
     max_discount = c.get("max_discount")
     if max_discount:
         raw_discount = min(raw_discount, float(max_discount))
