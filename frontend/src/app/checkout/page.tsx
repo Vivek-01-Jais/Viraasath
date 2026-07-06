@@ -98,8 +98,12 @@ export default function CheckoutPage() {
         throw new Error(err.detail || "Invalid coupon")
       }
       const data = await res.json()
+      const cartTotal = totalPrice()
+      if (data.min_cart_value > 0 && cartTotal < data.min_cart_value) {
+        throw new Error(`Minimum cart value of ₹${Math.round(data.min_cart_value).toLocaleString("en-IN")} required`)
+      }
       const discountValue = data.discount_type === "percentage"
-        ? Math.min(totalPrice() * data.discount_value / 100, data.max_discount ?? Infinity)
+        ? Math.min(cartTotal * data.discount_value / 100, data.max_discount ?? Infinity)
         : data.discount_value
       setAppliedCoupon({ code: couponCode.trim().toUpperCase(), discount: Math.round(discountValue) })
       toast.success(`Coupon applied! You save ₹${Math.round(discountValue).toLocaleString("en-IN")}`)
