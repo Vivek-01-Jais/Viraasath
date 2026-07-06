@@ -122,6 +122,18 @@ export default function AdminProductEditPage() {
       if (error) { toast.error(error.message); setSaving(false); return }
       toast.success("Product updated")
     }
+
+    for (const v of variants) {
+      if (v.id.startsWith("new_")) {
+        await supabase.from("product_variants").insert({
+          product_id: params.id,
+          size: v.size,
+          color: v.color,
+          stock_quantity: v.stock_quantity,
+          is_active: v.is_active,
+        })
+      }
+    }
     setSaving(false)
     router.push("/admin/products")
   }
@@ -256,13 +268,27 @@ export default function AdminProductEditPage() {
             </div>
           )}
 
-          {!isNew && variants.length > 0 && (
+          {!isNew && (
             <div>
-              <label className="text-sm font-medium text-[#800020] dark:text-[#B8860B] block mb-2">Stock by Size</label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-medium text-[#800020] dark:text-[#B8860B]">Stock by Size</label>
+                <button
+                  onClick={() => setVariants([...variants, { id: `new_${Date.now()}`, size: "", color: "", stock_quantity: 0, is_active: true }])}
+                  className="text-xs text-[#800020] dark:text-[#B8860B] hover:underline"
+                >
+                  + Add Size
+                </button>
+              </div>
               <div className="space-y-2">
                 {variants.map((v) => (
                   <div key={v.id} className="flex items-center gap-3 p-3 rounded-lg border border-[#E5E0DB] dark:border-[#333]">
-                    <span className="text-sm font-medium w-20 text-[#333] dark:text-[#F0EDE8]">{v.size}</span>
+                    <input
+                      type="text"
+                      value={v.size}
+                      onChange={(e) => setVariants(variants.map(x => x.id === v.id ? { ...x, size: e.target.value } : x))}
+                      placeholder="S, M, L, XL..."
+                      className="w-20 text-sm font-medium bg-transparent border border-transparent focus:border-[#C5A028] rounded px-1 py-0.5 text-[#333] dark:text-[#F0EDE8] placeholder:text-[#9C9C9C] focus:outline-none"
+                    />
                     {v.color && <span className="text-xs text-[#6B6B6B] dark:text-[#9C9C9C]">({v.color})</span>}
                     <input
                       type="number" min="0"
@@ -270,8 +296,10 @@ export default function AdminProductEditPage() {
                       onChange={async (e) => {
                         const qty = Number(e.target.value)
                         setVariants(variants.map(x => x.id === v.id ? { ...x, stock_quantity: qty } : x))
-                        const supabase = createClient()
-                        await supabase.from("product_variants").update({ stock_quantity: qty }).eq("id", v.id)
+                        if (!v.id.startsWith("new_")) {
+                          const supabase = createClient()
+                          await supabase.from("product_variants").update({ stock_quantity: qty }).eq("id", v.id)
+                        }
                       }}
                       className="w-20 ml-auto rounded-lg border border-[#E5E0DB] dark:border-[#333] bg-transparent px-2 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-[#C5A028]"
                     />
