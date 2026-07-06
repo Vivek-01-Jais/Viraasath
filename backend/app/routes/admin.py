@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from app.core.supabase import get_async_supabase
 from app.core.config import settings
 from app.core.auth import get_admin_user
@@ -182,20 +182,20 @@ class CategoryUpdate(BaseModel):
 
 
 class CouponCreate(BaseModel):
-    code: str
-    discount_type: str = "percentage"
-    discount_value: float
-    min_cart_value: float = 0
-    max_discount: float | None = None
-    usage_limit: int | None = None
+    code: str = Field(..., min_length=1, max_length=20, pattern=r"^[A-Z0-9_]+$")
+    discount_type: str = Field(default="percentage", pattern=r"^(percentage|fixed)$")
+    discount_value: float = Field(..., gt=0)
+    min_cart_value: float = Field(default=0, ge=0)
+    max_discount: float | None = Field(None, gt=0)
+    usage_limit: int | None = Field(None, gt=0)
 
 
 class CouponUpdate(BaseModel):
-    discount_type: str | None = None
-    discount_value: float | None = None
-    min_cart_value: float | None = None
-    max_discount: float | None = None
-    usage_limit: int | None = None
+    discount_type: str | None = Field(None, pattern=r"^(percentage|fixed)$")
+    discount_value: float | None = Field(None, gt=0)
+    min_cart_value: float | None = Field(None, ge=0)
+    max_discount: float | None = Field(None, gt=0)
+    usage_limit: int | None = Field(None, gt=0)
     is_active: bool | None = None
 
 
@@ -259,16 +259,13 @@ async def delete_coupon(coupon_id: str, current_user_id: str = Depends(get_admin
     return {"message": "Coupon deactivated"}
 
 
-MAX_FILE_SIZE = 5 * 1024 * 1024
-
-
 @router.post("/upload-image/{product_id}")
 async def upload_product_image(product_id: str, file: UploadFile = File(...), current_user_id: str = Depends(get_admin_user), supabase: AsyncClient = Depends(get_async_supabase)):
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Only image files are allowed (JPEG, PNG, WebP)")
 
     contents = await file.read()
-    if len(contents) > MAX_FILE_SIZE:
+    if len(contents) > settings.MAX_FILE_SIZE:
         raise HTTPException(status_code=400, detail="File too large. Maximum 5MB.")
 
     ext = file.filename.rsplit(".", 1)[-1] if file.filename else "jpg"

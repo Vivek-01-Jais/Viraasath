@@ -128,9 +128,9 @@ async def create_razorpay_order(body: RazorpayOrderRequest, request: Request, cu
         if not items.data or len(items.data) == 0:
             raise HTTPException(status_code=400, detail="Cart is empty")
 
-        subtotal = sum(float(item["product"]["price"]) * item["quantity"] for item in items.data)
+        subtotal = sum(float(item["product"]["price"]) * item["quantity"] for item in items.data if item.get("product"))
         discount, applied_code = apply_coupon(body.coupon_code, subtotal)
-        shipping = 0 if subtotal >= 999 else 49
+        shipping = 0 if subtotal >= settings.FREE_SHIPPING_MIN else settings.SHIPPING_COST
         total = subtotal + shipping - discount
         amount_paise = int(round(total * 100))
 
@@ -175,12 +175,12 @@ async def place_order(body: PlaceOrderRequest, request: Request, background_task
         if not items.data or len(items.data) == 0:
             raise HTTPException(status_code=400, detail="Cart is empty")
 
-        subtotal = sum(float(item["product"]["price"]) * item["quantity"] for item in items.data)
+        subtotal = sum(float(item["product"]["price"]) * item["quantity"] for item in items.data if item.get("product"))
         discount, applied_code = apply_coupon(body.coupon_code, subtotal)
-        shipping = 0 if subtotal >= 999 else 49
+        shipping = 0 if subtotal >= settings.FREE_SHIPPING_MIN else settings.SHIPPING_COST
         total = subtotal + shipping - discount
 
-        order_number = f"VR{datetime.utcnow().strftime('%y%m%d')}{uuid.uuid4().hex[:6].upper()}"
+        order_number = f"{settings.ORDER_PREFIX}{datetime.utcnow().strftime('%y%m%d')}{uuid.uuid4().hex[:6].upper()}"
 
         is_razorpay = bool(body.razorpay_payment_id and body.razorpay_order_id and body.razorpay_signature)
         payment_verified = False
@@ -194,6 +194,8 @@ async def place_order(body: PlaceOrderRequest, request: Request, background_task
             if not payment_verified:
                 raise HTTPException(status_code=400, detail="Payment verification failed")
 
+        tax_amount = round(subtotal * settings.TAX_RATE, 2)
+
         order_data = {
             "user_id": current_user_id,
             "order_number": order_number,
@@ -204,7 +206,7 @@ async def place_order(body: PlaceOrderRequest, request: Request, background_task
             "razorpay_payment_id": body.razorpay_payment_id if is_razorpay else None,
             "subtotal": subtotal,
             "shipping_cost": shipping,
-            "tax": 0,
+            "tax": tax_amount,
             "total": total,
             "discount_amount": discount,
             "coupon_code": applied_code,
@@ -219,7 +221,9 @@ async def place_order(body: PlaceOrderRequest, request: Request, background_task
 
         order_items_data = []
         for item in items.data or []:
-            p = item["product"]
+            p = item.get("product")
+            if not p:
+                continue
             variant = None
             if item.get("variant_id"):
                 variant = await supabase.table("product_variants").select("id, size, color").eq("id", item["variant_id"]).maybe_single().execute()
@@ -325,7 +329,8 @@ async def get_order(order_id: str, current_user_id: str = Depends(get_current_us
             raise HTTPException(status_code=404, detail="Order not found")
 
         items = await supabase.table("order_items").select("*").eq("order_id", order_id).execute()
-        address = await supabase.table("addresses").select("*").eq("id", order.data["shipping_address_id"]).maybe_single().execute()
+        address_id = order.data.get("shipping_address_id")
+        address = await supabase.table("addresses").select("*").eq("id", address_id).maybe_single().execute() if address_id else None
 
         return {
             **order.data,

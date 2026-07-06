@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings
+from pydantic import Field
 
 
 class Settings(BaseSettings):
@@ -16,7 +17,15 @@ class Settings(BaseSettings):
 
     SENTRY_DSN: str = ""
 
-    CORS_ORIGINS: list[str] = ["http://localhost:3000"]
+    FREE_SHIPPING_MIN: float = 999
+    SHIPPING_COST: float = 49
+    TAX_RATE: float = 0.0
+    ORDER_PREFIX: str = "VR"
+    MAX_FILE_SIZE: int = 5 * 1024 * 1024
+
+    CORS_ORIGINS: list[str] = Field(
+        default=["http://localhost:3000", "https://viraasath.vercel.app", "https://viraasath.onrender.com"]
+    )
 
     model_config = {"env_file": ".env", "case_sensitive": True}
 
@@ -24,6 +33,8 @@ class Settings(BaseSettings):
         missing = []
         if not self.SUPABASE_URL:
             missing.append("SUPABASE_URL")
+        if not self.SUPABASE_ANON_KEY:
+            missing.append("SUPABASE_ANON_KEY")
         if not self.SUPABASE_SERVICE_ROLE_KEY:
             missing.append("SUPABASE_SERVICE_ROLE_KEY")
         if missing:

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from app.core.supabase import get_async_supabase
 from app.core.auth import get_current_user
 from supabase._async.client import AsyncClient
@@ -11,8 +11,8 @@ router = APIRouter(prefix="/api/reviews", tags=["reviews"])
 
 class ReviewCreate(BaseModel):
     product_id: str
-    rating: int
-    comment: str | None = None
+    rating: int = Field(..., ge=1, le=5)
+    comment: str | None = Field(None, max_length=2000)
 
 
 @router.get("/product/{product_id}")

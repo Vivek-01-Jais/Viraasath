@@ -333,7 +333,7 @@ export const useCartStore = create<CartState>((set, get) => ({
     get().items.reduce((sum, i) => {
       const price = i.product.product_variants?.find(
         (v) => v.id === i.variant_id
-      )?.price ?? i.product.price
+      )?.price ?? i.product.price ?? 0
       return sum + price * i.quantity
     }, 0),
 }))

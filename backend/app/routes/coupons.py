@@ -1,7 +1,8 @@
 from datetime import datetime
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from app.core.supabase import get_async_supabase
 from app.core.auth import get_current_user
+from app.core.rate_limit import limiter
 from supabase._async.client import AsyncClient
 import logging
 
@@ -10,7 +11,8 @@ router = APIRouter(prefix="/api/coupons", tags=["coupons"])
 
 
 @router.get("/validate/{code}")
-async def validate_coupon(code: str, current_user_id: str = Depends(get_current_user), supabase: AsyncClient = Depends(get_async_supabase)):
+@limiter.limit("30/minute")
+async def validate_coupon(code: str, request: Request, current_user_id: str = Depends(get_current_user), supabase: AsyncClient = Depends(get_async_supabase)):
     try:
         coupon = await supabase.table("coupons").select("*").eq("code", code.upper()).maybe_single().execute()
         if not coupon.data:

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends, Request
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from app.core.supabase import get_async_supabase
 from app.core.rate_limit import limiter
 from app.core.auth import get_current_user
@@ -10,8 +10,8 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 class SignupRequest(BaseModel):
     email: EmailStr
-    password: str
-    full_name: str
+    password: str = Field(..., min_length=8)
+    full_name: str = Field(..., min_length=1, max_length=100)
 
 
 class LoginRequest(BaseModel):
@@ -51,9 +51,12 @@ async def login(body: LoginRequest, request: Request, supabase: AsyncClient = De
 @router.get("/profile")
 async def get_profile(current_user_id: str = Depends(get_current_user), supabase: AsyncClient = Depends(get_async_supabase)):
     try:
-        result = await supabase.table("profiles").select("*").eq("id", current_user_id).single().execute()
+        result = await supabase.table("profiles").select("*").eq("id", current_user_id).maybe_single().execute()
         if result.data:
             return result.data
+    except HTTPException:
+        raise
     except Exception:
-        pass
+        logger = __import__("logging").getLogger(__name__)
+        logger.warning(f"Profile fetch failed for user {current_user_id}")
     raise HTTPException(status_code=404, detail="Profile not found")
