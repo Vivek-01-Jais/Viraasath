@@ -7,6 +7,8 @@ import { QueryProvider } from "@/components/query-provider"
 import { CartSheet } from "@/components/cart/cart-sheet"
 import { Footer } from "@/components/footer"
 import { Toaster } from "@/components/ui/sonner"
+import { Analytics } from "@/components/analytics"
+import { AbandonedCartDetector } from "@/components/abandoned-cart-detector"
 import { BottomNav } from "@/components/bottom-nav"
 
 const inter = Inter({
@@ -44,6 +46,8 @@ export default function RootLayout({
             <CartSheet />
             <Toaster />
             <BottomNav />
+            <Analytics />
+            <AbandonedCartDetector />
           </AuthProvider>
           </QueryProvider>
         </ThemeProvider>

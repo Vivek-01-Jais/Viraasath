@@ -2,6 +2,7 @@
 
 import { create } from "zustand"
 import { createClient, isSupabaseAvailable } from "@/lib/supabase/client"
+import { markCartActivity } from "@/lib/cart-activity"
 import type { Product } from "@/types/product"
 
 export type CartItem = {
@@ -145,6 +146,7 @@ export const useCartStore = create<CartState>((set, get) => ({
         set({ items: [...get().items, newItem] })
       }
       saveLocalCart(get().items as LocalCartItem[])
+      markCartActivity()
       return
     }
 
@@ -211,18 +213,21 @@ export const useCartStore = create<CartState>((set, get) => ({
         }
       }
     }
+    markCartActivity()
   },
 
   removeItem: async (userId: string | null, itemId: string) => {
     if (!userId) {
       set({ items: get().items.filter((i) => i.id !== itemId) })
       saveLocalCart(get().items as LocalCartItem[])
+      markCartActivity()
       return
     }
     if (!isSupabaseAvailable()) return
     const supabase = createClient()
     await supabase.from("cart_items").delete().eq("id", itemId)
     set({ items: get().items.filter((i) => i.id !== itemId) })
+    markCartActivity()
   },
 
   updateQuantity: async (userId: string | null, itemId: string, quantity: number) => {
@@ -232,6 +237,7 @@ export const useCartStore = create<CartState>((set, get) => ({
         items: get().items.map((i) => (i.id === itemId ? { ...i, quantity } : i)),
       })
       saveLocalCart(get().items as LocalCartItem[])
+      markCartActivity()
       return
     }
     if (!isSupabaseAvailable()) return
@@ -240,6 +246,7 @@ export const useCartStore = create<CartState>((set, get) => ({
     set({
       items: get().items.map((i) => (i.id === itemId ? { ...i, quantity } : i)),
     })
+    markCartActivity()
   },
 
   mergeGuestCart: async (userId: string) => {

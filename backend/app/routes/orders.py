@@ -175,6 +175,17 @@ async def place_order(body: PlaceOrderRequest, request: Request, background_task
         if not items.data or len(items.data) == 0:
             raise HTTPException(status_code=400, detail="Cart is empty")
 
+        for item in items.data:
+            if item.get("variant_id"):
+                variant = await supabase.table("product_variants").select("id, stock_quantity, size, color").eq("id", item["variant_id"]).maybe_single().execute()
+                if not variant.data:
+                    raise HTTPException(status_code=400, detail=f"Variant not found for {item.get('product', {}).get('name', 'unknown')}")
+                if variant.data.get("stock_quantity", 0) < item["quantity"]:
+                    name = item.get("product", {}).get("name", "unknown")
+                    size = variant.data.get("size", "")
+                    stock = variant.data["stock_quantity"]
+                    raise HTTPException(status_code=400, detail=f"Insufficient stock for {name} ({size}): only {stock} left")
+
         subtotal = sum(float(item["product"]["price"]) * item["quantity"] for item in items.data if item.get("product"))
         discount, applied_code = apply_coupon(body.coupon_code, subtotal)
         shipping = 0 if subtotal >= settings.FREE_SHIPPING_MIN else settings.SHIPPING_COST
@@ -243,6 +254,13 @@ async def place_order(body: PlaceOrderRequest, request: Request, background_task
 
         if order_items_data:
             await supabase.table("order_items").insert(order_items_data).execute()
+
+        for item in items.data:
+            if item.get("variant_id"):
+                v = await supabase.table("product_variants").select("stock_quantity").eq("id", item["variant_id"]).maybe_single().execute()
+                if v.data:
+                    new_stock = max(int(v.data["stock_quantity"]) - item["quantity"], 0)
+                    await supabase.table("product_variants").update({"stock_quantity": new_stock}).eq("id", item["variant_id"]).execute()
 
         if is_razorpay and payment_verified:
             try:

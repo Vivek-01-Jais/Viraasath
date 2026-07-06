@@ -25,6 +25,7 @@ export function Footer() {
             <nav className="flex flex-col gap-2">
               <Link href="/products" className="text-sm text-[#333] dark:text-[#F0EDE8] hover:text-[#800020] dark:hover:text-[#B8860B] transition-colors">Shop All</Link>
               <Link href="/track" className="text-sm text-[#333] dark:text-[#F0EDE8] hover:text-[#800020] dark:hover:text-[#B8860B] transition-colors">Track Order</Link>
+              <Link href="/contact" className="text-sm text-[#333] dark:text-[#F0EDE8] hover:text-[#800020] dark:hover:text-[#B8860B] transition-colors">Contact Us</Link>
             </nav>
           </div>
           <div>

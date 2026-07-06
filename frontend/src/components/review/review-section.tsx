@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { Star } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { Star, Camera, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/lib/context/auth-context"
 import { useRouter } from "next/navigation"
@@ -12,6 +12,7 @@ type Review = {
   id: string
   rating: number
   comment: string | null
+  images: string[]
   created_at: string
   profile: { full_name: string } | null
 }
@@ -24,8 +25,12 @@ export function ReviewSection({ productId }: { productId: string }) {
   const [total, setTotal] = useState(0)
   const [rating, setRating] = useState(0)
   const [comment, setComment] = useState("")
+  const [files, setFiles] = useState<File[]>([])
+  const [previews, setPreviews] = useState<string[]>([])
   const [submitting, setSubmitting] = useState(false)
   const [loading, setLoading] = useState(true)
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null)
 
   useEffect(() => {
     async function loadReviews() {
@@ -40,7 +45,6 @@ export function ReviewSection({ productId }: { productId: string }) {
 
       const reviewsData = data ?? []
       setReviews(reviewsData)
-
       if (reviewsData.length > 0) {
         const avg = reviewsData.reduce((s: number, r: Review) => s + r.rating, 0) / reviewsData.length
         setAverage(Math.round(avg * 10) / 10)
@@ -51,25 +55,58 @@ export function ReviewSection({ productId }: { productId: string }) {
     loadReviews()
   }, [productId])
 
+  function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
+    const selected = Array.from(e.target.files || [])
+    const valid = selected.filter(f => f.type.startsWith("image/") && f.size <= 5 * 1024 * 1024)
+    if (valid.length !== selected.length) toast.error("Only images under 5MB are accepted")
+    const newFiles = [...files, ...valid].slice(0, 5)
+    setFiles(newFiles)
+    setPreviews(newFiles.map(f => URL.createObjectURL(f)))
+  }
+
+  function removeFile(i: number) {
+    const newFiles = files.filter((_, idx) => idx !== i)
+    setFiles(newFiles)
+    setPreviews(newFiles.map(f => URL.createObjectURL(f)))
+  }
+
   async function handleSubmit() {
     if (!user) { router.push("/login"); return }
     if (rating === 0) { toast.error("Please select a rating"); return }
     setSubmitting(true)
 
-    const supabase = createClient()
-    const { error } = await supabase.from("reviews").insert({
-      product_id: productId,
-      user_id: user.id,
-      rating,
-      comment: comment || null,
-    })
+    try {
+      const supabase = createClient()
+      const uploadedUrls: string[] = []
 
-    if (error) {
-      toast.error(error.message === 'duplicate key value violates unique constraint "reviews_product_id_user_id_key"' ? "You've already reviewed this product" : error.message)
-    } else {
-      toast.success("Review submitted! Awaiting moderation.")
-      setRating(0)
-      setComment("")
+      for (const file of files) {
+        const ext = file.name.split(".").pop() || "jpg"
+        const path = `reviews/${productId}/${user.id}_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
+        const { error: uploadErr } = await supabase.storage.from("product-images").upload(path, file)
+        if (uploadErr) throw new Error("Failed to upload image")
+        const { data: { publicUrl } } = supabase.storage.from("product-images").getPublicUrl(path)
+        uploadedUrls.push(publicUrl)
+      }
+
+      const { error } = await supabase.from("reviews").insert({
+        product_id: productId,
+        user_id: user.id,
+        rating,
+        comment: comment || null,
+        images: uploadedUrls,
+      })
+
+      if (error) {
+        toast.error(error.message.includes("duplicate key") ? "You've already reviewed this product" : error.message)
+      } else {
+        toast.success("Review submitted! Awaiting moderation.")
+        setRating(0)
+        setComment("")
+        setFiles([])
+        setPreviews([])
+      }
+    } catch {
+      toast.error("Failed to submit review")
     }
     setSubmitting(false)
   }
@@ -107,6 +144,20 @@ export function ReviewSection({ productId }: { productId: string }) {
             value={comment}
             onChange={(e) => setComment(e.target.value)}
           />
+          <div className="flex flex-wrap gap-2">
+            {previews.map((url, i) => (
+              <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border border-[#E5E0DB] dark:border-[#333]">
+                <img src={url} alt="" className="w-full h-full object-cover" />
+                <button onClick={() => removeFile(i)} className="absolute top-0.5 right-0.5 bg-black/50 rounded-full p-0.5"><X className="w-3 h-3 text-white" /></button>
+              </div>
+            ))}
+            {files.length < 5 && (
+              <button onClick={() => fileRef.current?.click()} className="w-16 h-16 rounded-lg border border-dashed border-[#E5E0DB] dark:border-[#333] flex items-center justify-center text-[#6B6B6B] hover:text-[#800020] dark:hover:text-[#B8860B]">
+                <Camera className="w-5 h-5" />
+              </button>
+            )}
+            <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFiles} />
+          </div>
           <Button size="sm" className="bg-[#800020] hover:bg-[#A00028] dark:bg-[#B8860B] dark:hover:bg-[#D4A020] text-white rounded-full" onClick={handleSubmit} disabled={submitting}>
             {submitting ? "Submitting..." : "Submit Review"}
           </Button>
@@ -130,9 +181,26 @@ export function ReviewSection({ productId }: { productId: string }) {
                 </div>
               </div>
               {r.comment && <p className="text-sm text-[#6B6B6B] dark:text-[#9C9C9C]">{r.comment}</p>}
+              {r.images && r.images.length > 0 && (
+                <div className="flex gap-2 mt-2">
+                  {r.images.map((url, i) => (
+                    <button key={i} onClick={() => setZoomedImage(url)} className="w-16 h-16 rounded-lg overflow-hidden border border-[#E5E0DB] dark:border-[#333] hover:opacity-80 transition-opacity">
+                      <img src={url} alt="" className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )}
               <p className="text-xs text-[#6B6B6B] dark:text-[#9C9C9C] mt-1">{new Date(r.created_at).toLocaleDateString("en-IN")}</p>
             </div>
           ))}
+        </div>
+      )}
+
+      {zoomedImage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => setZoomedImage(null)}>
+          <div className="max-w-lg max-h-[80vh] rounded-xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <img src={zoomedImage} alt="Review photo" className="w-full h-full object-contain" />
+          </div>
         </div>
       )}
     </div>

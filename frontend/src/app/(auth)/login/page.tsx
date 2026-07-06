@@ -45,7 +45,12 @@ export default function LoginPage() {
       options: { redirectTo: `${window.location.origin}/auth/callback` },
     })
     if (error) {
-      setError(error.message)
+      const msg = error.message
+      if (msg.includes("Demo mode") || msg.includes("not enabled")) {
+        setError("Google sign in is not configured. Use email/password or contact support.")
+      } else {
+        setError(msg)
+      }
       setGooglePending(false)
     }
   }

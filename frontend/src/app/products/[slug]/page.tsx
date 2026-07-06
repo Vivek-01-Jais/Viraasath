@@ -9,6 +9,7 @@ import { getProductBySlug } from "@/lib/queries/products"
 import { AddToCartButton } from "@/components/product/add-to-cart-button"
 import { WishlistButton } from "@/components/product/wishlist-button"
 import { ReviewSection } from "@/components/review/review-section"
+import { BulkEnquiry } from "@/components/bulk-enquiry"
 import { Check } from "lucide-react"
 
 export const dynamic = "force-dynamic"
@@ -137,6 +138,7 @@ export default async function ProductDetailPage({ params }: Props) {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-sm font-medium text-[#333] dark:text-[#F0EDE8]">Size</p>
+                    <SizeGuide />
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {sizes.map((size) => {
@@ -163,6 +165,7 @@ export default async function ProductDetailPage({ params }: Props) {
               <div className="space-y-3 pt-2">
                 <AddToCartButton product={product} />
                 <WishlistButton product={product} />
+                <BulkEnquiry productName={product.name} />
               </div>
 
               {product.description && (
@@ -178,8 +181,6 @@ export default async function ProductDetailPage({ params }: Props) {
                   <p className="text-sm text-[#6B6B6B] dark:text-[#9C9C9C]">{product.care_instructions}</p>
                 </div>
               )}
-
-              <SizeGuide />
             </div>
           </div>
 

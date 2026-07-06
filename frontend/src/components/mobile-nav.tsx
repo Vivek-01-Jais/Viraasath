@@ -11,7 +11,7 @@ export function MobileNav({ categories }: { categories: NavCategory[] }) {
 
   return (
     <>
-      <button onClick={() => setOpen(true)} className="md:hidden p-2 text-[#6B6B6B] hover:text-[#800020] dark:text-[#9C9C9C] dark:hover:text-[#B8860B]">
+      <button onClick={() => setOpen(true)} className="md:hidden p-3 -ml-1 text-[#6B6B6B] hover:text-[#800020] dark:text-[#9C9C9C] dark:hover:text-[#B8860B] active:scale-95 transition-transform" aria-label="Open menu">
         <Menu className="w-5 h-5" />
       </button>
 
