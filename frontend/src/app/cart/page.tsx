@@ -107,14 +107,14 @@ export default function CartPage() {
                         <button
                           onClick={() => updateQuantity(user?.id ?? null, item.id, item.quantity - 1)}
                           disabled={item.quantity <= 1}
-                          className="p-1.5 rounded-lg border border-[#E5E0DB] dark:border-[#333] hover:bg-[#F5F0EB] dark:hover:bg-[#242424] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                          className="p-2 rounded-lg border border-[#E5E0DB] dark:border-[#333] hover:bg-[#F5F0EB] dark:hover:bg-[#242424] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                         >
                           <Minus className="w-3.5 h-3.5" />
                         </button>
                         <span className="text-sm w-8 text-center font-medium text-[#333] dark:text-[#F0EDE8]">{item.quantity}</span>
                         <button
                           onClick={() => updateQuantity(user?.id ?? null, item.id, item.quantity + 1)}
-                          className="p-1.5 rounded-lg border border-[#E5E0DB] dark:border-[#333] hover:bg-[#F5F0EB] dark:hover:bg-[#242424] transition-colors"
+                          className="p-2 rounded-lg border border-[#E5E0DB] dark:border-[#333] hover:bg-[#F5F0EB] dark:hover:bg-[#242424] transition-colors"
                         >
                           <Plus className="w-3.5 h-3.5" />
                         </button>
@@ -124,7 +124,7 @@ export default function CartPage() {
                       <p className="font-semibold text-[#333] dark:text-[#F0EDE8]">{formatPrice(price * item.quantity)}</p>
                       <button
                         onClick={() => removeItem(user?.id ?? null, item.id)}
-                        className="text-xs text-[#6B6B6B] dark:text-[#9C9C9C] hover:text-[#800020] dark:hover:text-[#B8860B] mt-2 inline-flex items-center gap-1 transition-colors"
+                        className="p-2 text-xs text-[#6B6B6B] dark:text-[#9C9C9C] hover:text-[#800020] dark:hover:text-[#B8860B] mt-2 inline-flex items-center gap-1 transition-colors rounded-lg"
                       >
                         <Trash2 className="w-3 h-3" /> Remove
                       </button>

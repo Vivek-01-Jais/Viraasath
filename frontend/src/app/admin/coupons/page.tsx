@@ -162,7 +162,7 @@ export default function AdminCouponsPage() {
         {loading ? (
           <div className="text-center py-24 text-[#6B6B6B] dark:text-[#9C9C9C]">Loading...</div>
         ) : (
-          <div className="border border-[#E5E0DB] dark:border-[#333] rounded-xl overflow-hidden">
+          <div className="border border-[#E5E0DB] dark:border-[#333] rounded-xl overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-[#F8F8FF] dark:bg-[#1A1A1A]">
                 <tr>

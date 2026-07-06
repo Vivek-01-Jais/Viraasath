@@ -90,9 +90,9 @@ export default function AdminReviewsPage() {
                     </div>
                     <div className="flex gap-2">
                       {!r.is_approved && (
-                        <button onClick={() => moderateReview(r.id, true)} className="p-1.5 text-[#800020] hover:bg-[#800020]/10 dark:text-[#B8860B] dark:hover:bg-[#B8860B]/10 rounded"><Check className="w-4 h-4" /></button>
+                        <button onClick={() => moderateReview(r.id, true)} className="p-2 text-[#800020] hover:bg-[#800020]/10 dark:text-[#B8860B] dark:hover:bg-[#B8860B]/10 rounded"><Check className="w-4 h-4" /></button>
                       )}
-                      <button onClick={() => moderateReview(r.id, false)} className="p-1.5 text-red-500 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded"><X className="w-4 h-4" /></button>
+                      <button onClick={() => moderateReview(r.id, false)} className="p-2 text-red-500 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded"><X className="w-4 h-4" /></button>
                     </div>
                   </div>
                 </div>

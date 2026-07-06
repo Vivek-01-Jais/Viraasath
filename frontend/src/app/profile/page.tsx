@@ -136,13 +136,13 @@ export default function ProfilePage() {
           {showForm && (
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden mb-4">
               <div className="border border-[#E5E0DB] dark:border-[#333] rounded-xl p-4 space-y-3">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <Input placeholder="Full name" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} className="border-[#E5E0DB] dark:border-[#333]" />
                   <Input placeholder="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="border-[#E5E0DB] dark:border-[#333]" />
                 </div>
                 <Input placeholder="Address line 1" value={form.address_line1} onChange={(e) => setForm({ ...form, address_line1: e.target.value })} className="border-[#E5E0DB] dark:border-[#333]" />
                 <Input placeholder="Address line 2 (optional)" value={form.address_line2} onChange={(e) => setForm({ ...form, address_line2: e.target.value })} className="border-[#E5E0DB] dark:border-[#333]" />
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <Input placeholder="City" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className="border-[#E5E0DB] dark:border-[#333]" />
                   <Input placeholder="State" value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} className="border-[#E5E0DB] dark:border-[#333]" />
                   <Input placeholder="Postal code" value={form.postal_code} onChange={(e) => setForm({ ...form, postal_code: e.target.value })} className="border-[#E5E0DB] dark:border-[#333]" />
@@ -178,8 +178,8 @@ export default function ProfilePage() {
                   {addr.phone && <p className="text-sm text-[#6B6B6B] dark:text-[#9C9C9C]">{addr.phone}</p>}
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => editAddress(addr)} className="p-1.5 text-[#6B6B6B] hover:text-[#800020] dark:hover:text-[#B8860B] transition-colors"><Pencil className="w-4 h-4" /></button>
-                  <button onClick={() => deleteAddress(addr.id)} className="p-1.5 text-[#6B6B6B] hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
+                  <button onClick={() => editAddress(addr)} className="p-2 text-[#6B6B6B] hover:text-[#800020] dark:hover:text-[#B8860B] transition-colors"><Pencil className="w-4 h-4" /></button>
+                  <button onClick={() => deleteAddress(addr.id)} className="p-2 text-[#6B6B6B] hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
                 </div>
               </div>
             ))

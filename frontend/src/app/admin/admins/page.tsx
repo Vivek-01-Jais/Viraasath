@@ -97,13 +97,13 @@ export default function AdminAdminsPage() {
 
         <div className="mb-8 p-6 border border-[#E5E0DB] dark:border-[#333] rounded-xl">
           <h2 className="text-lg font-heading font-bold text-[#800020] dark:text-[#B8860B] mb-4">Grant Admin Access</h2>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter user email address"
-              className="flex-1 rounded-xl border border-[#E5E0DB] dark:border-[#333] bg-transparent px-3 py-2 text-sm text-[#333] dark:text-[#F0EDE8] focus:outline-none focus:ring-2 focus:ring-[#C5A028]"
+              className="flex-1 min-w-0 rounded-xl border border-[#E5E0DB] dark:border-[#333] bg-transparent px-3 py-2 text-sm text-[#333] dark:text-[#F0EDE8] focus:outline-none focus:ring-2 focus:ring-[#C5A028]"
             />
             <button
               onClick={handleGrant}
@@ -118,7 +118,7 @@ export default function AdminAdminsPage() {
         {loading ? (
           <div className="text-center py-24 text-[#6B6B6B] dark:text-[#9C9C9C]">Loading...</div>
         ) : (
-          <div className="border border-[#E5E0DB] dark:border-[#333] rounded-xl overflow-hidden">
+          <div className="border border-[#E5E0DB] dark:border-[#333] rounded-xl overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-[#F8F8FF] dark:bg-[#1A1A1A]">
                 <tr>

@@ -41,7 +41,7 @@ export function BulkEnquiry({ productName }: { productName: string }) {
           <div className="w-full max-w-md rounded-xl border border-[#E5E0DB] dark:border-[#333] bg-[#F8F8FF] dark:bg-[#1A1A1A] shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between px-5 py-4 border-b border-[#E5E0DB] dark:border-[#333]">
               <h3 className="font-heading text-lg text-[#333] dark:text-[#F0EDE8]">Bulk Order Enquiry</h3>
-              <button onClick={() => setOpen(false)} className="p-1 text-[#6B6B6B] hover:text-[#333] dark:hover:text-[#F0EDE8]"><X className="w-4 h-4" /></button>
+              <button onClick={() => setOpen(false)} className="p-2 text-[#6B6B6B] hover:text-[#333] dark:hover:text-[#F0EDE8]"><X className="w-4 h-4" /></button>
             </div>
             <form onSubmit={handleSubmit} className="p-5 space-y-4">
               <p className="text-sm text-[#6B6B6B] dark:text-[#9C9C9C]">Interested in bulk purchasing <strong className="text-[#333] dark:text-[#F0EDE8]">{productName}</strong>? Fill in your details and we&apos;ll get back to you.</p>

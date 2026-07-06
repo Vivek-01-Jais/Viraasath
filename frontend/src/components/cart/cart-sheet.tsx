@@ -52,7 +52,7 @@ export function CartSheet() {
                 <ShoppingBag className="w-5 h-5 text-[#800020] dark:text-[#B8860B]" />
                 <span className="font-heading font-semibold text-[#333] dark:text-[#F0EDE8]">Cart ({totalItems()})</span>
               </div>
-              <button onClick={closeCart} className="p-1 hover:bg-[#F5F0EB] dark:hover:bg-[#242424] rounded-md text-[#6B6B6B] dark:text-[#9C9C9C]">
+              <button onClick={closeCart} className="p-2 hover:bg-[#F5F0EB] dark:hover:bg-[#242424] rounded-md text-[#6B6B6B] dark:text-[#9C9C9C]">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -115,14 +115,14 @@ export function CartSheet() {
                             <button
                               onClick={() => userId && updateQuantity(userId, item.id, item.quantity - 1)}
                               disabled={item.quantity <= 1}
-                              className="p-1 rounded border border-[#E5E0DB] dark:border-[#333] hover:bg-[#F5F0EB] dark:hover:bg-[#242424] text-[#6B6B6B] dark:text-[#9C9C9C] disabled:opacity-30 disabled:cursor-not-allowed"
+                              className="p-2 rounded border border-[#E5E0DB] dark:border-[#333] hover:bg-[#F5F0EB] dark:hover:bg-[#242424] text-[#6B6B6B] dark:text-[#9C9C9C] disabled:opacity-30 disabled:cursor-not-allowed"
                             >
                               <Minus className="w-3 h-3" />
                             </button>
                             <span className="text-sm w-6 text-center text-[#333] dark:text-[#F0EDE8]">{item.quantity}</span>
                             <button
                               onClick={() => userId && updateQuantity(userId, item.id, item.quantity + 1)}
-                              className="p-1 rounded border border-[#E5E0DB] dark:border-[#333] hover:bg-[#F5F0EB] dark:hover:bg-[#242424] text-[#6B6B6B] dark:text-[#9C9C9C]"
+                              className="p-2 rounded border border-[#E5E0DB] dark:border-[#333] hover:bg-[#F5F0EB] dark:hover:bg-[#242424] text-[#6B6B6B] dark:text-[#9C9C9C]"
                             >
                               <Plus className="w-3 h-3" />
                             </button>
@@ -130,7 +130,7 @@ export function CartSheet() {
                         </div>
                         <button
                           onClick={() => userId && removeItem(userId, item.id)}
-                          className="p-1 text-[#6B6B6B] dark:text-[#9C9C9C] hover:text-red-500 shrink-0 self-start"
+                          className="p-2 text-[#6B6B6B] dark:text-[#9C9C9C] hover:text-red-500 shrink-0 self-start"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>

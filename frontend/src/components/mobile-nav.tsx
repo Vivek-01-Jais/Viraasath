@@ -28,7 +28,7 @@ export function MobileNav({ categories }: { categories: NavCategory[] }) {
           <div className="absolute top-0 left-0 bottom-0 w-[280px] bg-[#F8F8FF] dark:bg-[#1A1A1A] shadow-2xl flex flex-col">
             <div className="flex items-center justify-between px-4 h-16 border-b border-[#E5E0DB] dark:border-[#333]">
               <span className="font-heading font-bold text-[#800020] dark:text-[#B8860B]">Menu</span>
-              <button onClick={() => setOpen(false)} className="p-1 text-[#6B6B6B] hover:text-[#800020] dark:hover:text-[#B8860B]">
+              <button onClick={() => setOpen(false)} className="p-2 text-[#6B6B6B] hover:text-[#800020] dark:hover:text-[#B8860B]">
                 <X className="w-5 h-5" />
               </button>
             </div>
