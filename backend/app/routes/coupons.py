@@ -35,7 +35,7 @@ async def validate_coupon(code: str, request: Request, current_user_id: str = De
             "discount_type": c["discount_type"],
             "discount_value": float(c["discount_value"]),
             "max_discount": float(c["max_discount"]) if c.get("max_discount") else None,
-            "min_cart_value": float(c["min_cart_value"]),
+            "min_cart_value": float(c["min_cart_value"]) if c.get("min_cart_value") else 0,
         }
     except HTTPException:
         raise
