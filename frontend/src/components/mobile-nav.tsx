@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { createPortal } from "react-dom"
 import Link from "next/link"
 import { Menu, X, Search, LogIn, UserPlus } from "lucide-react"
 
@@ -9,14 +10,20 @@ type NavCategory = { id: string; slug: string; name: string }
 export function MobileNav({ categories }: { categories: NavCategory[] }) {
   const [open, setOpen] = useState(false)
 
+  useEffect(() => {
+    if (!open) return
+    document.body.style.overflow = "hidden"
+    return () => { document.body.style.overflow = "" }
+  }, [open])
+
   return (
     <>
       <button onClick={() => setOpen(true)} className="md:hidden p-3 -ml-1 text-[#6B6B6B] hover:text-[#800020] dark:text-[#9C9C9C] dark:hover:text-[#B8860B] active:scale-95 transition-transform" aria-label="Open menu">
         <Menu className="w-5 h-5" />
       </button>
 
-      {open && (
-        <div className="fixed inset-0 z-40 md:hidden">
+      {open && createPortal(
+        <div className="fixed inset-0 z-[100] md:hidden">
           <div className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
           <div className="absolute top-0 left-0 bottom-0 w-[280px] bg-[#F8F8FF] dark:bg-[#1A1A1A] shadow-2xl flex flex-col">
             <div className="flex items-center justify-between px-4 h-16 border-b border-[#E5E0DB] dark:border-[#333]">
@@ -52,7 +59,8 @@ export function MobileNav({ categories }: { categories: NavCategory[] }) {
               </Link>
             </nav>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   )
