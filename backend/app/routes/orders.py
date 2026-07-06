@@ -44,6 +44,18 @@ def verify_razorpay_payment(order_id: str, payment_id: str, signature: str) -> b
     return hmac.compare_digest(expected_signature, signature)
 
 
+def get_item_price(item: dict) -> float:
+    p = item.get("product", {})
+    base = float(p.get("price", 0))
+    vid = item.get("variant_id")
+    if vid:
+        variants = p.get("product_variants", []) or []
+        for v in variants:
+            if v.get("id") == vid and v.get("price") is not None:
+                return float(v["price"])
+    return base
+
+
 async def apply_coupon(coupon_code: str | None, subtotal: float, supabase: AsyncClient) -> tuple[float, str | None]:
     if not coupon_code:
         return 0, None
@@ -51,7 +63,14 @@ async def apply_coupon(coupon_code: str | None, subtotal: float, supabase: Async
     if not coupon.data:
         return 0, None
     c = coupon.data
+    now = datetime.utcnow()
     if not c.get("is_active"):
+        return 0, None
+    if c.get("expires_at"):
+        expires = datetime.fromisoformat(c["expires_at"].replace("Z", "+00:00"))
+        if expires < now.replace(tzinfo=expires.tzinfo):
+            return 0, None
+    if c.get("usage_limit") and c.get("used_count", 0) >= c["usage_limit"]:
         return 0, None
     if c.get("min_cart_value", 0) > subtotal:
         return 0, None
@@ -122,11 +141,11 @@ async def create_razorpay_order(body: RazorpayOrderRequest, request: Request, cu
         if not cart.data:
             raise HTTPException(status_code=404, detail="Cart not found")
 
-        items = await supabase.table("cart_items").select("*, product:products(*)").eq("cart_id", cart.data["id"]).execute()
+        items = await supabase.table("cart_items").select("*, product:products(*, product_variants(*))").eq("cart_id", cart.data["id"]).execute()
         if not items.data or len(items.data) == 0:
             raise HTTPException(status_code=400, detail="Cart is empty")
 
-        subtotal = sum(float(item["product"]["price"]) * item["quantity"] for item in items.data if item.get("product"))
+        subtotal = sum(get_item_price(item) * item["quantity"] for item in items.data if item.get("product"))
         discount, applied_code = await apply_coupon(body.coupon_code, subtotal, supabase)
         shipping = 0 if subtotal >= settings.FREE_SHIPPING_MIN else settings.SHIPPING_COST
         total = subtotal + shipping - discount
@@ -169,7 +188,7 @@ async def place_order(body: PlaceOrderRequest, request: Request, background_task
         if not cart.data:
             raise HTTPException(status_code=404, detail="Cart not found")
 
-        items = await supabase.table("cart_items").select("*, product:products(*)").eq("cart_id", cart.data["id"]).execute()
+        items = await supabase.table("cart_items").select("*, product:products(*, product_variants(*))").eq("cart_id", cart.data["id"]).execute()
         if not items.data or len(items.data) == 0:
             raise HTTPException(status_code=400, detail="Cart is empty")
 
@@ -184,7 +203,7 @@ async def place_order(body: PlaceOrderRequest, request: Request, background_task
                     stock = variant.data["stock_quantity"]
                     raise HTTPException(status_code=400, detail=f"Insufficient stock for {name} ({size}): only {stock} left")
 
-        subtotal = sum(float(item["product"]["price"]) * item["quantity"] for item in items.data if item.get("product"))
+        subtotal = sum(get_item_price(item) * item["quantity"] for item in items.data if item.get("product"))
         discount, applied_code = await apply_coupon(body.coupon_code, subtotal, supabase)
         shipping = 0 if subtotal >= settings.FREE_SHIPPING_MIN else settings.SHIPPING_COST
         total = subtotal + shipping - discount
@@ -233,18 +252,21 @@ async def place_order(body: PlaceOrderRequest, request: Request, background_task
             p = item.get("product")
             if not p:
                 continue
-            variant = None
+            v_data = {}
             if item.get("variant_id"):
-                variant = await supabase.table("product_variants").select("id, size, color").eq("id", item["variant_id"]).maybe_single().execute()
-            v_data = variant.data if variant and variant.data else {}
-
+                variants = p.get("product_variants", []) or []
+                for v in variants:
+                    if v.get("id") == item["variant_id"]:
+                        v_data = v
+                        break
+            unit_price = get_item_price(item)
             order_items_data.append({
                 "order_id": order_id,
                 "product_id": item["product_id"],
                 "variant_id": item.get("variant_id"),
                 "quantity": item["quantity"],
-                "unit_price": float(p["price"]),
-                "total_price": float(p["price"]) * item["quantity"],
+                "unit_price": unit_price,
+                "total_price": unit_price * item["quantity"],
                 "product_name": p["name"],
                 "variant_size": v_data.get("size"),
                 "variant_color": v_data.get("color"),
