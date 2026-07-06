@@ -44,11 +44,10 @@ def verify_razorpay_payment(order_id: str, payment_id: str, signature: str) -> b
     return hmac.compare_digest(expected_signature, signature)
 
 
-def apply_coupon(coupon_code: str | None, subtotal: float) -> tuple[float, str | None]:
+async def apply_coupon(coupon_code: str | None, subtotal: float, supabase: AsyncClient) -> tuple[float, str | None]:
     if not coupon_code:
         return 0, None
-    supabase = get_supabase()
-    coupon = supabase.table("coupons").select("*").eq("code", coupon_code.upper()).maybe_single().execute()
+    coupon = await supabase.table("coupons").select("*").eq("code", coupon_code.upper()).maybe_single().execute()
     if not coupon.data:
         return 0, None
     c = coupon.data
@@ -63,11 +62,10 @@ def apply_coupon(coupon_code: str | None, subtotal: float) -> tuple[float, str |
     return round(raw_discount, 2), coupon_code.upper()
 
 
-def increment_coupon_usage(code: str):
-    supabase = get_supabase()
-    current = supabase.table("coupons").select("used_count").eq("code", code).maybe_single().execute()
+async def increment_coupon_usage(code: str, supabase: AsyncClient):
+    current = await supabase.table("coupons").select("used_count").eq("code", code).maybe_single().execute()
     new_count = (current.data.get("used_count") or 0) + 1 if current.data else 1
-    supabase.table("coupons").update({"used_count": new_count}).eq("code", code).execute()
+    await supabase.table("coupons").update({"used_count": new_count}).eq("code", code).execute()
 
 
 async def send_order_confirmation_email(order_id: str, user_id: str):
@@ -129,7 +127,7 @@ async def create_razorpay_order(body: RazorpayOrderRequest, request: Request, cu
             raise HTTPException(status_code=400, detail="Cart is empty")
 
         subtotal = sum(float(item["product"]["price"]) * item["quantity"] for item in items.data if item.get("product"))
-        discount, applied_code = apply_coupon(body.coupon_code, subtotal)
+        discount, applied_code = await apply_coupon(body.coupon_code, subtotal, supabase)
         shipping = 0 if subtotal >= settings.FREE_SHIPPING_MIN else settings.SHIPPING_COST
         total = subtotal + shipping - discount
         amount_paise = int(round(total * 100))
@@ -187,7 +185,7 @@ async def place_order(body: PlaceOrderRequest, request: Request, background_task
                     raise HTTPException(status_code=400, detail=f"Insufficient stock for {name} ({size}): only {stock} left")
 
         subtotal = sum(float(item["product"]["price"]) * item["quantity"] for item in items.data if item.get("product"))
-        discount, applied_code = apply_coupon(body.coupon_code, subtotal)
+        discount, applied_code = await apply_coupon(body.coupon_code, subtotal, supabase)
         shipping = 0 if subtotal >= settings.FREE_SHIPPING_MIN else settings.SHIPPING_COST
         total = subtotal + shipping - discount
 
@@ -257,10 +255,10 @@ async def place_order(body: PlaceOrderRequest, request: Request, background_task
 
         for item in items.data:
             if item.get("variant_id"):
-                v = await supabase.table("product_variants").select("stock_quantity").eq("id", item["variant_id"]).maybe_single().execute()
-                if v.data:
-                    new_stock = max(int(v.data["stock_quantity"]) - item["quantity"], 0)
-                    await supabase.table("product_variants").update({"stock_quantity": new_stock}).eq("id", item["variant_id"]).execute()
+                result = await supabase.rpc("atomic_decrement_stock", {"variant_id": item["variant_id"], "qty": item["quantity"]}).execute()
+                if result.data == -1:
+                    pname = next((i.get("product", {}).get("name", "unknown") for i in items.data if i["variant_id"] == item["variant_id"]), "unknown")
+                    raise HTTPException(status_code=400, detail=f"Sorry, {pname} just went out of stock!")
 
         if is_razorpay and payment_verified:
             try:
@@ -274,7 +272,7 @@ async def place_order(body: PlaceOrderRequest, request: Request, background_task
         await supabase.table("carts").delete().eq("id", cart.data["id"]).execute()
 
         if applied_code:
-            increment_coupon_usage(applied_code)
+            await increment_coupon_usage(applied_code, supabase)
 
         background_tasks.add_task(send_order_confirmation_email, order_id, current_user_id)
 
@@ -291,8 +289,7 @@ async def place_order(body: PlaceOrderRequest, request: Request, background_task
 
 
 @router.post("/razorpay-webhook")
-async def razorpay_webhook(request: Request):
-    supabase = get_supabase()
+async def razorpay_webhook(request: Request, supabase: AsyncClient = Depends(get_async_supabase)):
     try:
         payload = await request.body()
         signature = request.headers.get("x-razorpay-signature", "")
@@ -316,7 +313,7 @@ async def razorpay_webhook(request: Request):
             status = payment.get("status")
 
             if order_id:
-                supabase.table("orders").update({
+                await supabase.table("orders").update({
                     "payment_status": "paid" if status == "captured" else status,
                     "razorpay_payment_id": payment_id,
                 }).eq("razorpay_order_id", order_id).execute()
@@ -362,14 +359,21 @@ async def get_order(order_id: str, current_user_id: str = Depends(get_current_us
         raise HTTPException(status_code=404, detail="Order not found")
 
 
+ORDER_PUBLIC_FIELDS = {
+    "order_number", "status", "payment_status", "payment_method",
+    "subtotal", "shipping_cost", "tax", "total", "discount_amount", "coupon_code",
+    "created_at", "updated_at",
+}
+
+
 @router.get("/track/{order_number}")
 async def track_order(order_number: str, supabase: AsyncClient = Depends(get_async_supabase)):
     try:
-        order = await supabase.table("orders").select("*").eq("order_number", order_number).maybe_single().execute()
+        order = await supabase.table("orders").select(",".join(ORDER_PUBLIC_FIELDS)).eq("order_number", order_number).maybe_single().execute()
         if not order.data:
             raise HTTPException(status_code=404, detail="Order not found")
 
-        items = await supabase.table("order_items").select("*").eq("order_id", order.data["id"]).execute()
+        items = await supabase.table("order_items").select("product_name, quantity, unit_price, total_price, variant_size, variant_color").eq("order_id", order.data["id"]).execute()
         return {**order.data, "items": items.data or []}
     except HTTPException:
         raise

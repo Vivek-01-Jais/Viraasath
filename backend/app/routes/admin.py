@@ -97,27 +97,27 @@ async def bootstrap_admin(supabase: AsyncClient = Depends(get_async_supabase)):
 
 
 class ProductCreate(BaseModel):
-    name: str
-    slug: str
-    description: str | None = None
-    price: float
-    compare_at_price: float | None = None
+    name: str = Field(..., min_length=1, max_length=200)
+    slug: str = Field(..., min_length=1, max_length=200, pattern=r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+    description: str | None = Field(None, max_length=5000)
+    price: float = Field(..., gt=0)
+    compare_at_price: float | None = Field(None, gt=0)
     category_id: str | None = None
-    material: str | None = None
-    care_instructions: str | None = None
+    material: str | None = Field(None, max_length=100)
+    care_instructions: str | None = Field(None, max_length=1000)
     is_featured: bool = False
     is_active: bool = True
 
 
 class ProductUpdate(BaseModel):
-    name: str | None = None
-    slug: str | None = None
-    description: str | None = None
-    price: float | None = None
-    compare_at_price: float | None = None
+    name: str | None = Field(None, min_length=1, max_length=200)
+    slug: str | None = Field(None, min_length=1, max_length=200, pattern=r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+    description: str | None = Field(None, max_length=5000)
+    price: float | None = Field(None, gt=0)
+    compare_at_price: float | None = Field(None, gt=0)
     category_id: str | None = None
-    material: str | None = None
-    care_instructions: str | None = None
+    material: str | None = Field(None, max_length=100)
+    care_instructions: str | None = Field(None, max_length=1000)
     is_featured: bool | None = None
     is_active: bool | None = None
 
