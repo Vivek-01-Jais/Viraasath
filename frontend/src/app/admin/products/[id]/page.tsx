@@ -132,6 +132,11 @@ export default function AdminProductEditPage() {
           stock_quantity: v.stock_quantity,
           is_active: v.is_active,
         })
+      } else {
+        await supabase.from("product_variants").update({
+          size: v.size,
+          stock_quantity: v.stock_quantity,
+        }).eq("id", v.id)
       }
     }
     setSaving(false)
