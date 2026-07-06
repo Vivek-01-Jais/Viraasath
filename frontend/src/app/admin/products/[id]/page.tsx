@@ -286,13 +286,13 @@ export default function AdminProductEditPage() {
               </div>
               <div className="space-y-2">
                 {variants.map((v) => (
-                  <div key={v.id} className="flex items-center gap-3 p-3 rounded-lg border border-[#E5E0DB] dark:border-[#333]">
+                  <div key={v.id} className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-2 p-3 rounded-lg border border-[#E5E0DB] dark:border-[#333]">
                     <input
                       type="text"
                       value={v.size}
                       onChange={(e) => setVariants(variants.map(x => x.id === v.id ? { ...x, size: e.target.value } : x))}
                       placeholder="S, M, L, XL..."
-                      className="w-20 text-sm font-medium bg-transparent border border-transparent focus:border-[#C5A028] rounded px-1 py-0.5 text-[#333] dark:text-[#F0EDE8] placeholder:text-[#9C9C9C] focus:outline-none"
+                      className="text-sm font-medium bg-transparent border border-transparent focus:border-[#C5A028] rounded px-1 py-0.5 text-[#333] dark:text-[#F0EDE8] placeholder:text-[#9C9C9C] focus:outline-none"
                     />
                     {v.color && <span className="text-xs text-[#6B6B6B] dark:text-[#9C9C9C]">({v.color})</span>}
                     <input
@@ -306,9 +306,22 @@ export default function AdminProductEditPage() {
                           await supabase.from("product_variants").update({ stock_quantity: qty }).eq("id", v.id)
                         }
                       }}
-                      className="w-20 ml-auto rounded-lg border border-[#E5E0DB] dark:border-[#333] bg-transparent px-2 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-[#C5A028]"
+                      className="w-20 rounded-lg border border-[#E5E0DB] dark:border-[#333] bg-transparent px-2 py-1 text-sm text-center text-[#333] dark:text-[#F0EDE8] focus:outline-none focus:ring-2 focus:ring-[#C5A028]"
                     />
-                    <span className="text-xs text-[#6B6B6B] dark:text-[#9C9C9C] w-16 text-right">{v.is_active ? "Active" : "Inactive"}</span>
+                    <span className="text-xs text-[#6B6B6B] dark:text-[#9C9C9C] w-14 text-center">{v.is_active ? "Active" : "Inactive"}</span>
+                    <button
+                      onClick={() => {
+                        setVariants(variants.filter(x => x.id !== v.id))
+                        if (!v.id.startsWith("new_")) {
+                          const supabase = createClient()
+                          supabase.from("product_variants").delete().eq("id", v.id)
+                        }
+                      }}
+                      className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+                      title="Remove size"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 ))}
               </div>

@@ -25,13 +25,13 @@ export default async function Home() {
           <div className="relative px-6 pt-32 pb-28 max-w-7xl mx-auto">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div>
-                <div className="inline-flex items-center gap-2 border border-[#C5A028]/30 text-[#C5A028] text-xs tracking-[0.2em] uppercase px-4 py-1.5 rounded-full mb-8">
+                <div className="inline-flex items-center gap-2 border border-amber-400/30 text-amber-600 dark:border-[#C5A028]/30 dark:text-[#C5A028] text-xs tracking-[0.2em] uppercase px-4 py-1.5 rounded-full mb-8">
                   <Sparkles className="w-3 h-3" /> Summer Collection 2026
                 </div>
                 <h1 className="font-heading text-5xl sm:text-6xl lg:text-7xl leading-[1.1] tracking-tight">
                   Where Heritage
                   <br />
-                  <span className="text-[#C5A028] italic">Meets</span> Modernity
+                  <span className="text-amber-600 dark:text-[#C5A028] italic">Meets</span> Modernity
                 </h1>
                 <p className="mt-6 max-w-lg text-[#B0A8A0] text-lg leading-relaxed">
                   Handcrafted kurtis that celebrate India&apos;s textile legacy — reimagined 
@@ -146,7 +146,7 @@ export default async function Home() {
                   <div className="w-16 h-16 mx-auto rounded-full bg-[#C5A028]/10 border border-[#C5A028]/20 flex items-center justify-center text-2xl text-[#C5A028] mb-6 group-hover:bg-[#C5A028]/20 transition-colors duration-500">
                     {item.icon}
                   </div>
-                  <h3 className="font-heading text-xl mb-3 group-hover:text-[#C5A028] transition-colors duration-500">{item.title}</h3>
+                  <h3 className="font-heading text-xl mb-3 group-hover:text-amber-600 dark:group-hover:text-[#C5A028] transition-colors duration-500">{item.title}</h3>
                   <p className="text-sm text-[#B0A8A0] leading-relaxed max-w-xs mx-auto">{item.desc}</p>
                 </div>
               ))}

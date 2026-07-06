@@ -177,7 +177,7 @@ export default function OrderDetailPage() {
               isCancelled ? "text-red-500" : order.status === "delivered" ? "text-emerald-600 dark:text-emerald-400" : "text-[#800020] dark:text-[#B8860B]"
             }`}>{order.status}</span></div>
             <div className="flex justify-between text-sm"><span className="text-[#6B6B6B] dark:text-[#9C9C9C]">Payment</span><span className={`font-medium capitalize ${
-              order.payment_status === "paid" || order.payment_status === "refunded" ? "text-emerald-600 dark:text-emerald-400" : "text-[#C5A028]"
+              order.payment_status === "paid" || order.payment_status === "refunded" ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-[#C5A028]"
             }`}>{order.payment_status}</span></div>
             <div className="flex justify-between text-sm"><span className="text-[#6B6B6B] dark:text-[#9C9C9C]">Date</span><span className="font-medium text-[#333] dark:text-[#F0EDE8]">{new Date(order.created_at).toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" })}</span></div>
           </div>

@@ -171,7 +171,7 @@ export default function ProfilePage() {
                 <div>
                   <div className="flex items-center gap-2">
                     <p className="font-medium text-[#333] dark:text-[#F0EDE8]">{addr.full_name}</p>
-                    {addr.is_default && <span className="text-xs bg-[#C5A028]/10 text-[#C5A028] px-2 py-0.5 rounded-full flex items-center gap-1 font-medium"><Check className="w-3 h-3" /> Default</span>}
+                    {addr.is_default && <span className="text-xs bg-amber-50 text-amber-600 dark:bg-[#C5A028]/10 dark:text-[#C5A028] px-2 py-0.5 rounded-full flex items-center gap-1 font-medium"><Check className="w-3 h-3" /> Default</span>}
                   </div>
                   <p className="text-sm text-[#6B6B6B] dark:text-[#9C9C9C] mt-1">{addr.address_line1}{addr.address_line2 ? `, ${addr.address_line2}` : ""}</p>
                   <p className="text-sm text-[#6B6B6B] dark:text-[#9C9C9C]">{addr.city}, {addr.state} — {addr.postal_code}</p>

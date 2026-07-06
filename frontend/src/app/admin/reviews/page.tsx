@@ -83,7 +83,7 @@ export default function AdminReviewsPage() {
                       <p className="text-xs text-[#6B6B6B] dark:text-[#9C9C9C]">{r.product?.name ?? "Unknown product"}</p>
                       <div className="flex items-center gap-0.5 my-1">
                         {Array.from({ length: 5 }).map((_, i) => (
-                          <span key={i} className={`text-sm ${i < r.rating ? "text-[#C5A028]" : "text-zinc-200 dark:text-[#333]"}`}>★</span>
+                          <span key={i} className={`text-sm ${i < r.rating ? "text-amber-500 dark:text-[#C5A028]" : "text-zinc-200 dark:text-[#333]"}`}>★</span>
                         ))}
                       </div>
                       {r.comment && <p className="text-sm text-[#333] dark:text-[#F0EDE8]">{r.comment}</p>}

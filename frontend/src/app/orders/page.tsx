@@ -20,7 +20,7 @@ type Order = {
 }
 
 const statusColors: Record<string, string> = {
-  pending: "text-[#C5A028] bg-[#C5A028]/10",
+  pending: "text-amber-600 bg-amber-50 dark:text-[#C5A028] dark:bg-[#C5A028]/10",
   confirmed: "text-[#800020] bg-[#800020]/10",
   shipped: "text-purple-600 bg-purple-50 dark:bg-purple-900/20",
   delivered: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20",

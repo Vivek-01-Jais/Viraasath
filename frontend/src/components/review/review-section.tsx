@@ -117,7 +117,7 @@ export function ReviewSection({ productId }: { productId: string }) {
         <h3 className="font-heading text-lg text-[#333] dark:text-[#F0EDE8]">Reviews</h3>
         {total > 0 && (
           <div className="flex items-center gap-1 text-sm">
-            <span className="text-[#C5A028] font-semibold">{average}</span>
+            <span className="text-amber-600 dark:text-[#C5A028] font-semibold">{average}</span>
             <div className="flex">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star key={i} className={`w-3.5 h-3.5 ${i < Math.round(average) ? "fill-[#C5A028] text-[#C5A028]" : "text-[#E5E0DB] dark:text-[#333]"}`} />
