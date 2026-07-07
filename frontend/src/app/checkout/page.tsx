@@ -49,7 +49,13 @@ export default function CheckoutPage() {
   const [placing, setPlacing] = useState(false)
   const [razorpayLoaded, setRazorpayLoaded] = useState(false)
   const [couponCode, setCouponCode] = useState("")
-  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null)
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string
+    discount: number
+    discountType: string
+    discountValue: number
+    maxDiscount: number | null
+  } | null>(null)
   const [couponLoading, setCouponLoading] = useState(false)
 
   const shipping = totalPrice() >= 999 ? 0 : 49
@@ -105,8 +111,18 @@ export default function CheckoutPage() {
       const discountValue = data.discount_type === "percentage"
         ? Math.min(cartTotal * data.discount_value / 100, data.max_discount ?? Infinity)
         : data.discount_value
-      setAppliedCoupon({ code: couponCode.trim().toUpperCase(), discount: Math.round(discountValue) })
-      toast.success(`Coupon applied! You save ₹${Math.round(discountValue).toLocaleString("en-IN")}`)
+      const capped = data.max_discount && (cartTotal * data.discount_value / 100) > data.max_discount
+      setAppliedCoupon({
+        code: couponCode.trim().toUpperCase(),
+        discount: Math.round(discountValue),
+        discountType: data.discount_type,
+        discountValue: data.discount_value,
+        maxDiscount: data.max_discount,
+      })
+      const msg = capped
+        ? `Coupon applied! Max ₹${Math.round(data.max_discount).toLocaleString("en-IN")} off (${data.discount_value}% of ₹${Math.round(cartTotal).toLocaleString("en-IN")})`
+        : `Coupon applied! You save ₹${Math.round(discountValue).toLocaleString("en-IN")}`
+      toast.success(msg)
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to apply coupon")
       setAppliedCoupon(null)
@@ -302,7 +318,22 @@ export default function CheckoutPage() {
               <div className="border-t border-[#E5E0DB] dark:border-[#333]" />
               <div className="flex justify-between text-sm"><span className="text-[#6B6B6B] dark:text-[#9C9C9C]">Subtotal</span><span className="text-[#333] dark:text-[#F0EDE8]">₹{totalPrice().toLocaleString("en-IN")}</span></div>
               <div className="flex justify-between text-sm"><span className="text-[#6B6B6B] dark:text-[#9C9C9C]">Shipping</span><span className={shipping === 0 ? "text-emerald-600 dark:text-emerald-400" : "text-[#333] dark:text-[#F0EDE8]"}>{shipping === 0 ? "Free" : `₹${shipping}`}</span></div>
-              {discount > 0 && <div className="flex justify-between text-sm"><span className="text-emerald-600 dark:text-emerald-400">Discount ({appliedCoupon?.code})</span><span className="text-emerald-600 dark:text-emerald-400">-₹{discount.toLocaleString("en-IN")}</span></div>}
+              {discount > 0 && appliedCoupon && (() => {
+                const rate = appliedCoupon.discountType === "percentage"
+                  ? `${appliedCoupon.discountValue}%`
+                  : `₹${appliedCoupon.discountValue}`
+                const cap = appliedCoupon.maxDiscount
+                  ? ` (max ₹${Math.round(appliedCoupon.maxDiscount).toLocaleString("en-IN")})`
+                  : ""
+                return (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-emerald-600 dark:text-emerald-400">
+                      Discount {rate}{cap} ({appliedCoupon.code})
+                    </span>
+                    <span className="text-emerald-600 dark:text-emerald-400">-₹{discount.toLocaleString("en-IN")}</span>
+                  </div>
+                )
+              })()}
               <div className="flex gap-2">
                 <input
                   type="text"
