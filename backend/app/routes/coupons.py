@@ -23,22 +23,37 @@ async def validate_coupon(code: str, request: Request, current_user_id: str = De
             raise HTTPException(status_code=400, detail="This coupon is no longer active")
 
         if c.get("expires_at"):
-            expires = datetime.fromisoformat(c["expires_at"].replace("Z", "+00:00"))
-            if expires < datetime.now(expires.tzinfo):
-                raise HTTPException(status_code=400, detail="This coupon has expired")
+            try:
+                expires = datetime.fromisoformat(c["expires_at"].replace("Z", "+00:00"))
+                if expires < datetime.now(expires.tzinfo):
+                    raise HTTPException(status_code=400, detail="This coupon has expired")
+            except (ValueError, TypeError):
+                pass  # ignore unparseable dates
 
         if c.get("usage_limit") and c.get("used_count", 0) >= c["usage_limit"]:
             raise HTTPException(status_code=400, detail="This coupon has reached its usage limit")
 
+        try:
+            discount_value = float(c.get("discount_value", 0) or 0)
+        except (ValueError, TypeError):
+            discount_value = 0
+
+        try:
+            max_discount = float(c["max_discount"]) if c.get("max_discount") else None
+        except (ValueError, TypeError):
+            max_discount = None
+
+        min_cart_value = float(c.get("min_cart_value", 0) or 0)
+
         return {
-            "code": c["code"],
-            "discount_type": c["discount_type"],
-            "discount_value": float(c["discount_value"]) if c.get("discount_value") is not None else 0,
-            "max_discount": float(c["max_discount"]) if c.get("max_discount") else None,
-            "min_cart_value": float(c["min_cart_value"]) if c.get("min_cart_value") else 0,
+            "code": c.get("code", ""),
+            "discount_type": c.get("discount_type", "percentage"),
+            "discount_value": discount_value,
+            "max_discount": max_discount,
+            "min_cart_value": min_cart_value,
         }
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error validating coupon {code}: {e}")
+        logger.error(f"Error validating coupon {code}: {type(e).__name__}: {e}")
         raise HTTPException(status_code=500, detail="Failed to validate coupon")
