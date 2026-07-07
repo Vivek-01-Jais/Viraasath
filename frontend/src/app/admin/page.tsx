@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { motion } from "motion/react"
-import { LayoutDashboard, Package, ShoppingCart, Users, Star, FolderTree, Tag, Shield } from "lucide-react"
+import { LayoutDashboard, Package, ShoppingCart, Users, Star, FolderTree, Tag, Shield, FileText } from "lucide-react"
 import { Header } from "@/components/header"
 import { useAuth } from "@/lib/context/auth-context"
 import { createClient } from "@/lib/supabase/client"
@@ -174,6 +174,10 @@ export default function AdminDashboard() {
               <Link href="/admin/admins" className="border border-[#E5E0DB] dark:border-[#333] rounded-xl p-6 text-center hover:border-[#800020] dark:hover:border-[#B8860B] transition-colors hover:shadow-sm">
                 <Shield className="w-8 h-8 mx-auto mb-2 text-[#800020] dark:text-[#B8860B]" />
                 <p className="font-medium text-[#333] dark:text-[#F0EDE8]">Admins</p>
+              </Link>
+              <Link href="/admin/site-content" className="border border-[#E5E0DB] dark:border-[#333] rounded-xl p-6 text-center hover:border-[#800020] dark:hover:border-[#B8860B] transition-colors hover:shadow-sm">
+                <FileText className="w-8 h-8 mx-auto mb-2 text-[#800020] dark:text-[#B8860B]" />
+                <p className="font-medium text-[#333] dark:text-[#F0EDE8]">Site Content</p>
               </Link>
             </div>
           </>
