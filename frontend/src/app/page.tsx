@@ -3,15 +3,29 @@ import { Button } from "@/components/ui/button"
 import { Header } from "@/components/header"
 import { ProductCard } from "@/components/product/product-card"
 import { getFeaturedProducts, getCategories } from "@/lib/queries/products"
+import { getSiteContent } from "@/lib/site-content"
 import { ArrowRight, Sparkles } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
 export default async function Home() {
-  const [featured, categories] = await Promise.all([
+  const [featured, categories, content] = await Promise.all([
     getFeaturedProducts(),
     getCategories(),
+    getSiteContent(),
   ])
+
+  const heroBadge = content.hero_badge || "Summer Collection 2026"
+  const heroTitle1 = content.hero_title_1 || "Where Heritage"
+  const heroTitle2 = content.hero_title_2 || "Meets Modernity"
+  const heroTagline = content.hero_tagline || "Handcrafted kurtis that celebrate India&apos;s textile legacy"
+  const heroCta = content.hero_cta || "Explore Collection"
+  const ethosTitle1 = content.ethos_title_1 || "Handpicked Craftsmanship"
+  const ethosDesc1 = content.ethos_desc_1 || "Each piece is curated from skilled artisans across India."
+  const ethosTitle2 = content.ethos_title_2 || "Premium Fabrics"
+  const ethosDesc2 = content.ethos_desc_2 || "Only the finest cottons, silks, and handloom materials."
+  const ethosTitle3 = content.ethos_title_3 || "Effortless Elegance"
+  const ethosDesc3 = content.ethos_desc_3 || "Free returns within 15 days, secure checkout."
 
   return (
     <div className="flex flex-col flex-1">
@@ -26,21 +40,20 @@ export default async function Home() {
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div>
                 <div className="inline-flex items-center gap-2 border border-amber-400/30 text-amber-600 dark:border-[#C5A028]/30 dark:text-[#C5A028] text-xs tracking-[0.2em] uppercase px-4 py-1.5 rounded-full mb-8">
-                  <Sparkles className="w-3 h-3" /> Summer Collection 2026
+                  <Sparkles className="w-3 h-3" /> {heroBadge}
                 </div>
                 <h1 className="font-heading text-5xl sm:text-6xl lg:text-7xl leading-[1.1] tracking-tight">
-                  Where Heritage
+                  {heroTitle1}
                   <br />
-                  <span className="text-amber-600 dark:text-[#C5A028] italic">Meets</span> Modernity
+                  <span className="text-amber-600 dark:text-[#C5A028] italic">{heroTitle2}</span>
                 </h1>
                 <p className="mt-6 max-w-lg text-[#B0A8A0] text-lg leading-relaxed">
-                  Handcrafted kurtis that celebrate India&apos;s textile legacy — reimagined 
-                  for the woman who honors tradition while defining her own future.
+                  {heroTagline}
                 </p>
                 <div className="mt-10 flex flex-wrap gap-4">
                   <Link href="/products">
                     <Button size="lg" className="bg-[#C5A028] text-[#1A1110] hover:bg-[#D4B040] font-semibold px-10 h-13 text-base rounded-full">
-                      Explore Collection <ArrowRight className="w-4 h-4 ml-1.5" />
+                      {heroCta} <ArrowRight className="w-4 h-4 ml-1.5" />
                     </Button>
                   </Link>
                   <Link href="/track">
@@ -126,21 +139,9 @@ export default async function Home() {
             </div>
             <div className="grid md:grid-cols-3 gap-10">
               {[
-                { 
-                  title: "Handpicked Craftsmanship", 
-                  desc: "Each piece is curated from skilled artisans across India, preserving age-old techniques while embracing contemporary aesthetics.",
-                  icon: "◈"
-                },
-                { 
-                  title: "Premium Fabrics", 
-                  desc: "Only the finest cottons, silks, and handloom materials — ethically sourced and crafted to ensure lasting beauty and comfort.",
-                  icon: "◇"
-                },
-                { 
-                  title: "Effortless Elegance", 
-                  desc: "Free returns within 15 days, secure checkout, and dedicated support to make your experience as beautiful as our kurtis.",
-                  icon: "✦"
-                },
+                { title: ethosTitle1, desc: ethosDesc1, icon: "◈" },
+                { title: ethosTitle2, desc: ethosDesc2, icon: "◇" },
+                { title: ethosTitle3, desc: ethosDesc3, icon: "✦" },
               ].map((item) => (
                 <div key={item.title} className="text-center group">
                   <div className="w-16 h-16 mx-auto rounded-full bg-[#C5A028]/10 border border-[#C5A028]/20 flex items-center justify-center text-2xl text-[#C5A028] mb-6 group-hover:bg-[#C5A028]/20 transition-colors duration-500">

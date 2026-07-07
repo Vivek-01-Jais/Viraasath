@@ -15,6 +15,7 @@ from app.routes.orders import router as orders_router
 from app.routes.reviews import router as reviews_router
 from app.routes.admin import router as admin_router
 from app.routes.coupons import router as coupons_router
+from app.routes.site_content import router as site_content_router
 
 import logging
 import traceback
@@ -72,6 +73,7 @@ app.include_router(orders_router)
 app.include_router(reviews_router)
 app.include_router(admin_router)
 app.include_router(coupons_router)
+app.include_router(site_content_router)
 
 
 @app.get("/health")

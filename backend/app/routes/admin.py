@@ -496,3 +496,35 @@ async def delete_product_image(image_id: str, current_user_id: str = Depends(get
     except Exception as e:
         logger.error(f"Error deleting image {image_id}: {e}")
         raise HTTPException(status_code=500, detail="Failed to delete image")
+
+
+class SiteContentUpdate(BaseModel):
+    key: str
+    value: str
+
+
+@router.get("/site-content")
+async def list_site_content(current_user_id: str = Depends(get_admin_user), supabase: AsyncClient = Depends(get_async_supabase)):
+    try:
+        result = await supabase.table("site_content").select("*").order("key").execute()
+        return result.data or []
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error listing site content: {e}")
+        raise HTTPException(status_code=500, detail="Failed to list site content")
+
+
+@router.put("/site-content")
+async def update_site_content(body: SiteContentUpdate, current_user_id: str = Depends(get_admin_user), supabase: AsyncClient = Depends(get_async_supabase)):
+    try:
+        from datetime import datetime
+        result = await supabase.table("site_content").upsert({"key": body.key, "value": body.value, "updated_at": datetime.utcnow().isoformat()}).execute()
+        if result.data:
+            return result.data[0]
+        raise HTTPException(status_code=400, detail="Failed to update site content")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating site content {body.key}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update site content")
