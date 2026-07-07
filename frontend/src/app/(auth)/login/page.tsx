@@ -32,7 +32,9 @@ export default function LoginPage() {
       return
     }
 
-    router.push("/")
+    // Wait for session to propagate before redirecting
+    await supabase.auth.getUser()
+    router.replace("/")
     router.refresh()
   }
 

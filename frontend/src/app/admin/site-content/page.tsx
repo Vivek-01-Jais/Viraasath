@@ -32,6 +32,7 @@ export default function AdminSiteContentPage() {
   const router = useRouter()
   const [items, setItems] = useState<ContentItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState<string | null>(null)
 
   const loadContent = useCallback(async () => {
@@ -39,10 +40,18 @@ export default function AdminSiteContentPage() {
       const headers = await getAuthHeaders()
       const res = await fetch(`${API_URL}/api/admin/site-content`, { headers })
       if (res.ok) {
-        setItems(await res.json())
+        const data = await res.json()
+        if (data.length === 0) {
+          setError("No content found. Run migration 007_site_content.sql in Supabase SQL Editor.")
+        } else {
+          setItems(data)
+        }
+      } else {
+        const err = await res.json()
+        setError(err.detail || "Failed to load site content. Run migration 007_site_content.sql first.")
       }
     } catch {
-      toast.error("Failed to load site content")
+      setError("Failed to connect. Is the backend running?")
     }
     setLoading(false)
   }, [])
@@ -83,6 +92,20 @@ export default function AdminSiteContentPage() {
         <Header />
         <main className="flex-1 flex items-center justify-center">
           <p className="text-[#9C9C9C]">Loading...</p>
+        </main>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col flex-1">
+        <Header />
+        <main className="flex-1 px-6 py-8 max-w-3xl mx-auto w-full">
+          <h1 className="font-heading text-3xl text-[#333] dark:text-[#F0EDE8] mb-2">Site Content</h1>
+          <div className="border border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20 rounded-xl p-6 text-center">
+            <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
+          </div>
         </main>
       </div>
     )
