@@ -55,5 +55,6 @@ async def validate_coupon(code: str, request: Request, current_user_id: str = De
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error validating coupon {code}: {type(e).__name__}: {e}")
-        raise HTTPException(status_code=500, detail="Failed to validate coupon")
+        err_type = type(e).__name__
+        logger.error(f"Error validating coupon {code}: {err_type}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to validate coupon ({err_type})")
