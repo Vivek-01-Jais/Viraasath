@@ -78,8 +78,11 @@ export function ProductCard({ product }: { product: Product }) {
 
   async function handleQuickAdd(e: React.MouseEvent) {
     e.preventDefault()
-    await addItem(user?.id ?? null, product)
-    toast.success("Added to cart", {
+    const firstVariant = product.product_variants?.find(v => v.stock_quantity > 0)
+    const variantId = firstVariant?.id
+    await addItem(user?.id ?? null, product, variantId)
+    const sizeInfo = variantId && firstVariant ? ` (${firstVariant.size})` : ""
+    toast.success(`Added${sizeInfo} to cart`, {
       action: { label: "View", onClick: () => openCart() },
     })
   }

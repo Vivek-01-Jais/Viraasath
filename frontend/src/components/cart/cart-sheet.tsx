@@ -17,7 +17,7 @@ function formatPrice(amount: number) {
 export function CartSheet() {
   const { user } = useAuth()
   const router = useRouter()
-  const { items, isOpen, loading, fetchCart, removeItem, updateQuantity, closeCart, totalItems, totalPrice, initLocalCart } = useCartStore()
+  const { items, isOpen, loading, fetchCart, removeItem, updateQuantity, updateVariant, closeCart, totalItems, totalPrice, initLocalCart } = useCartStore()
   const userId = user?.id
 
   useEffect(() => {
@@ -127,6 +127,25 @@ export function CartSheet() {
                               <Plus className="w-3 h-3" />
                             </button>
                           </div>
+                          {item.product.product_variants?.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {[...new Set(item.product.product_variants.map(v => v.size))].map(size => {
+                                const variant = item.product.product_variants.find(v => v.size === size)
+                                const isSelected = item.variant_id === variant?.id
+                                const outOfStock = variant ? variant.stock_quantity === 0 : true
+                                return (
+                                  <button key={size} disabled={outOfStock}
+                                    onClick={() => userId && updateVariant(userId, item.id, variant!.id)}
+                                    className={`text-[9px] px-1.5 py-0.5 rounded font-medium transition-all ${
+                                      outOfStock ? "text-[#9C9C9C] line-through bg-[#F5F0EB] dark:bg-[#242424]/50 cursor-not-allowed"
+                                      : isSelected ? "bg-[#800020] dark:bg-[#B8860B] text-white"
+                                      : "bg-[#F5F0EB] dark:bg-[#2A2A2A] text-[#6B6B6B] dark:text-[#9C9C9C] hover:bg-[#800020]/10 dark:hover:bg-[#B8860B]/20 cursor-pointer"
+                                    }`}
+                                  >{size}</button>
+                                )
+                              })}
+                            </div>
+                          )}
                         </div>
                         <button
                           onClick={() => userId && removeItem(userId, item.id)}

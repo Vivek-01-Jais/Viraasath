@@ -31,6 +31,7 @@ type CartState = {
   addItem: (userId: string | null, product: Product, variantId?: string) => Promise<void>
   removeItem: (userId: string | null, itemId: string) => Promise<void>
   updateQuantity: (userId: string | null, itemId: string, quantity: number) => Promise<void>
+  updateVariant: (userId: string | null, itemId: string, variantId: string) => Promise<void>
   clearCart: () => void
   mergeGuestCart: (userId: string) => Promise<void>
   openCart: () => void
@@ -245,6 +246,24 @@ export const useCartStore = create<CartState>((set, get) => ({
     await supabase.from("cart_items").update({ quantity }).eq("id", itemId)
     set({
       items: get().items.map((i) => (i.id === itemId ? { ...i, quantity } : i)),
+    })
+    markCartActivity()
+  },
+
+  updateVariant: async (userId: string | null, itemId: string, variantId: string) => {
+    if (!userId) {
+      set({
+        items: get().items.map((i) => (i.id === itemId ? { ...i, variant_id: variantId } : i)),
+      })
+      saveLocalCart(get().items as LocalCartItem[])
+      markCartActivity()
+      return
+    }
+    if (!isSupabaseAvailable()) return
+    const supabase = createClient()
+    await supabase.from("cart_items").update({ variant_id: variantId }).eq("id", itemId)
+    set({
+      items: get().items.map((i) => (i.id === itemId ? { ...i, variant_id: variantId } : i)),
     })
     markCartActivity()
   },

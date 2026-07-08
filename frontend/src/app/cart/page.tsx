@@ -19,7 +19,7 @@ function formatPrice(amount: number) {
 export default function CartPage() {
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
-  const { items, loading, fetchCart, removeItem, updateQuantity, totalPrice, initLocalCart } = useCartStore()
+  const { items, loading, fetchCart, removeItem, updateQuantity, updateVariant, totalPrice, initLocalCart } = useCartStore()
   const initDone = useRef(false)
 
   useEffect(() => {
@@ -119,6 +119,25 @@ export default function CartPage() {
                           <Plus className="w-3.5 h-3.5" />
                         </button>
                       </div>
+                      {item.product.product_variants?.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          {[...new Set(item.product.product_variants.map(v => v.size))].map(size => {
+                            const variant = item.product.product_variants.find(v => v.size === size)
+                            const isSelected = item.variant_id === variant?.id
+                            const outOfStock = variant ? variant.stock_quantity === 0 : true
+                            return (
+                              <button key={size} disabled={outOfStock}
+                                onClick={() => updateVariant(user?.id ?? null, item.id, variant!.id)}
+                                className={`text-[10px] px-2 py-0.5 rounded-md font-medium transition-all ${
+                                  outOfStock ? "text-[#9C9C9C] line-through bg-[#F5F0EB] dark:bg-[#242424]/50 cursor-not-allowed"
+                                  : isSelected ? "bg-[#800020] dark:bg-[#B8860B] text-white"
+                                  : "bg-[#F5F0EB] dark:bg-[#2A2A2A] text-[#6B6B6B] dark:text-[#9C9C9C] hover:bg-[#800020]/10 dark:hover:bg-[#B8860B]/20 cursor-pointer"
+                                }`}
+                              >{size}</button>
+                            )
+                          })}
+                        </div>
+                      )}
                     </div>
                     <div className="text-right shrink-0">
                       <p className="font-semibold text-[#333] dark:text-[#F0EDE8]">{formatPrice(price * item.quantity)}</p>
