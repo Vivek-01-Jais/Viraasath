@@ -126,8 +126,8 @@ export default function CartPage() {
                             const isSelected = item.variant_id === variant?.id
                             const outOfStock = variant ? variant.stock_quantity === 0 : true
                             return (
-                              <button key={size} disabled={outOfStock}
-                                onClick={() => updateVariant(user?.id ?? null, item.id, variant!.id)}
+                              <button key={size} disabled={outOfStock || !variant}
+                                onClick={() => variant && updateVariant(user?.id ?? null, item.id, variant.id)}
                                 className={`text-[10px] px-2 py-0.5 rounded-md font-medium transition-all ${
                                   outOfStock ? "text-[#9C9C9C] line-through bg-[#F5F0EB] dark:bg-[#242424]/50 cursor-not-allowed"
                                   : isSelected ? "bg-[#800020] dark:bg-[#B8860B] text-white"
