@@ -3,29 +3,41 @@
 import { Suspense, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
+import type { AuthChangeEvent } from "@supabase/supabase-js"
 
 function CallbackInner() {
   const searchParams = useSearchParams()
   const [message, setMessage] = useState("Completing sign in...")
 
   useEffect(() => {
+    let cancelled = false
+    const supabase = createClient()
+
+    const { data: listener } = supabase.auth.onAuthStateChange((event: AuthChangeEvent) => {
+      if (event === "SIGNED_IN" && !cancelled) {
+        window.location.href = "/"
+      }
+    })
+
     const handleCallback = async () => {
       const code = searchParams.get("code")
 
       if (code) {
-        const supabase = createClient()
         const { error } = await supabase.auth.exchangeCodeForSession(code)
-        if (error) {
-          setMessage(`${error.message}. Redirecting...`)
-          setTimeout(() => { window.location.href = `/login?error=${encodeURIComponent(error.message)}` }, 3000)
+        if (!error && !cancelled) {
+          window.location.href = "/"
           return
         }
       }
 
-      window.location.href = "/"
+      if (!cancelled) {
+        window.location.href = "/"
+      }
     }
 
     handleCallback()
+
+    return () => { cancelled = true; listener.subscription.unsubscribe() }
   }, [searchParams])
 
   return (
