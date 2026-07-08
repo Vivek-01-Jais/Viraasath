@@ -55,7 +55,7 @@ export function MobileNav({ categories }: { categories: NavCategory[] }) {
                 <LogIn className="w-4 h-4" /> Sign In
               </Link>
               <Link href="/signup" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-[#F5F0EB] dark:hover:bg-[#242424] text-sm font-medium text-[#6B6B6B] dark:text-[#9C9C9C] transition-colors">
-                <UserPlus className="w-4 h-4" /> Join
+                <UserPlus className="w-4 h-4" /> Create Account
               </Link>
             </nav>
           </div>

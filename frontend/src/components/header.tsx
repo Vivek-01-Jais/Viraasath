@@ -138,8 +138,8 @@ export function Header() {
             </button>
 
             {loading ? null : user ? (
-              <div className="items-center gap-1 ml-1 hidden sm:flex">
-                <span className="text-sm text-[#6B6B6B] dark:text-[#9C9C9C] max-w-[120px] truncate">
+              <div className="flex items-center gap-1 ml-1">
+                <span className="text-xs sm:text-sm text-[#6B6B6B] dark:text-[#9C9C9C] max-w-[80px] sm:max-w-[120px] truncate hidden sm:inline">
                   {user.user_metadata?.full_name ?? user.email?.split("@")[0]}
                 </span>
                 <button onClick={signOut} className="p-2 text-[#6B6B6B] hover:text-[#800020] dark:text-[#9C9C9C] dark:hover:text-[#B8860B] hover:bg-[#800020]/5 dark:hover:bg-[#B8860B]/10 rounded-lg transition-colors" title="Sign out">
@@ -147,13 +147,13 @@ export function Header() {
                 </button>
               </div>
             ) : (
-              <div className="items-center gap-2 ml-1 hidden sm:flex">
-                <Link href="/login" className="text-sm text-[#6B6B6B] hover:text-[#800020] dark:text-[#9C9C9C] dark:hover:text-[#B8860B] transition-colors font-medium">
+              <div className="flex items-center gap-1 sm:gap-2 ml-1">
+                <Link href="/login" className="text-xs sm:text-sm text-[#6B6B6B] hover:text-[#800020] dark:text-[#9C9C9C] dark:hover:text-[#B8860B] transition-colors font-medium px-1.5 sm:px-0">
                   Sign in
                 </Link>
                 <Link href="/signup">
-                  <Button size="sm" className="bg-[#800020] hover:bg-[#A00028] dark:bg-[#B8860B] dark:hover:bg-[#D4A020] text-white font-semibold px-4 rounded-full">
-                    Join
+                  <Button size="sm" className="bg-[#800020] hover:bg-[#A00028] dark:bg-[#B8860B] dark:hover:bg-[#D4A020] text-white font-semibold px-2 sm:px-4 rounded-full text-xs sm:text-sm h-8 sm:h-9">
+                    Create Account
                   </Button>
                 </Link>
               </div>

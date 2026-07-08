@@ -1,18 +1,24 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
+import { useAuth } from "@/lib/context/auth-context"
 
 export default function SignupPage() {
   const [error, setError] = useState<string | null>(null)
   const [pending, setPending] = useState(false)
   const [googlePending, setGooglePending] = useState(false)
-  const router = useRouter()
+  const { user, loading: authLoading } = useAuth()
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      window.location.href = "/"
+    }
+  }, [user, authLoading])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -37,8 +43,7 @@ export default function SignupPage() {
       return
     }
 
-    router.push("/")
-    router.refresh()
+    window.location.href = "/"
   }
 
   async function handleGoogleSignUp() {
