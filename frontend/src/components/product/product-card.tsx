@@ -112,7 +112,7 @@ export function ProductCard({ product }: { product: Product }) {
               />
             </button>
           </div>
-          <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+          <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto">
             <button
               onClick={handleQuickAdd}
               className="w-full py-2.5 rounded-full bg-white/95 dark:bg-[#242424]/95 text-[#333] dark:text-[#F0EDE8] text-sm font-medium hover:bg-white dark:hover:bg-[#242424] transition-colors flex items-center justify-center gap-2 shadow-sm"

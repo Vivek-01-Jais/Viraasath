@@ -6,7 +6,6 @@ import { ShoppingBag, Heart, Moon, Sun, User, LogOut, ChevronDown, Shield, LogIn
 import { useTheme } from "next-themes"
 import { useAuth } from "@/lib/context/auth-context"
 import { useCartStore } from "@/lib/stores/cart-store"
-import { Button } from "@/components/ui/button"
 import { useSyncExternalStore } from "react"
 import { SearchCommand } from "@/components/search-command"
 import { MobileNav } from "@/components/mobile-nav"
@@ -164,15 +163,9 @@ export function Header() {
               <div className="hidden sm:flex items-center gap-1 ml-1">
                 <Link href="/login" className="p-2 text-[#6B6B6B] hover:text-[#800020] dark:text-[#9C9C9C] dark:hover:text-[#B8860B] hover:bg-[#800020]/5 dark:hover:bg-[#B8860B]/10 rounded-lg transition-colors" title="Sign in">
                   <LogIn className="w-4 h-4" />
-                  <span className="hidden sm:inline text-xs sm:text-sm font-medium ml-1">Sign in</span>
                 </Link>
-                <Link href="/signup" className="p-2 text-[#6B6B6B] hover:text-[#800020] dark:text-[#9C9C9C] dark:hover:text-[#B8860B] hover:bg-[#800020]/5 dark:hover:bg-[#B8860B]/10 rounded-lg transition-colors sm:hidden" title="Create Account">
+                <Link href="/signup" className="p-2 text-[#6B6B6B] hover:text-[#800020] dark:text-[#9C9C9C] dark:hover:text-[#B8860B] hover:bg-[#800020]/5 dark:hover:bg-[#B8860B]/10 rounded-lg transition-colors" title="Create Account">
                   <UserPlus className="w-4 h-4" />
-                </Link>
-                <Link href="/signup" className="hidden sm:block">
-                  <Button size="sm" className="bg-[#800020] hover:bg-[#A00028] dark:bg-[#B8860B] dark:hover:bg-[#D4A020] text-white font-semibold px-4 rounded-full text-xs sm:text-sm h-8 sm:h-9">
-                    Create Account
-                  </Button>
                 </Link>
               </div>
             )}
