@@ -12,7 +12,6 @@ import { SearchCommand } from "@/components/search-command"
 import { MobileNav } from "@/components/mobile-nav"
 import { AnnouncementBar } from "@/components/announcement-bar"
 import { createClient, isSupabaseAvailable } from "@/lib/supabase/client"
-import { API_URL, getAuthHeaders } from "@/lib/config"
 
 const emptySubscribe = () => () => {}
 
@@ -52,17 +51,10 @@ export function Header() {
 
   useEffect(() => {
     if (!user) { setIsAdmin(false); return }
-    getAuthHeaders().then(headers => {
-      fetch(`${API_URL}/api/admin/verify`, { headers })
-        .then(r => setIsAdmin(r.ok))
-        .catch(() => {
-          // Fallback: check Supabase directly if API unreachable
-          const supabase = createClient()
-          supabase.from("profiles").select("role").eq("id", user.id).maybeSingle().then((profile: { data?: { role: string } | null }) => {
-            setIsAdmin(profile.data?.role === "admin")
-          }).catch(() => setIsAdmin(false))
-        })
-    })
+    const supabase = createClient()
+    supabase.from("profiles").select("role").eq("id", user.id).maybeSingle()
+      .then((res: { data?: { role: string } | null }) => setIsAdmin(res.data?.role === "admin"))
+      .catch(() => setIsAdmin(false))
   }, [user])
 
   return (
