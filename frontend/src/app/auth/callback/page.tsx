@@ -18,13 +18,12 @@ function CallbackInner() {
         const { error } = await supabase.auth.exchangeCodeForSession(code)
         if (error) {
           setMessage("Authentication failed. Redirecting...")
-          setTimeout(() => router.push("/login?error=Auth failed"), 2000)
+          setTimeout(() => { window.location.href = "/login?error=Auth failed" }, 2000)
           return
         }
       }
 
-      router.push("/")
-      router.refresh()
+      window.location.href = "/"
     }
 
     handleCallback()

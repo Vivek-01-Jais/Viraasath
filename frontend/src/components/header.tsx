@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import { ShoppingBag, Heart, Moon, Sun, User, LogOut, ChevronDown, Shield } from "lucide-react"
+import { ShoppingBag, Heart, Moon, Sun, User, LogOut, ChevronDown, Shield, LogIn, UserPlus } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useAuth } from "@/lib/context/auth-context"
 import { useCartStore } from "@/lib/stores/cart-store"
@@ -161,12 +161,16 @@ export function Header() {
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-1 sm:gap-2 ml-1">
-                <Link href="/login" className="text-xs sm:text-sm text-[#6B6B6B] hover:text-[#800020] dark:text-[#9C9C9C] dark:hover:text-[#B8860B] transition-colors font-medium px-1.5 sm:px-0">
-                  Sign in
+              <div className="flex items-center gap-1 ml-1">
+                <Link href="/login" className="p-2 text-[#6B6B6B] hover:text-[#800020] dark:text-[#9C9C9C] dark:hover:text-[#B8860B] hover:bg-[#800020]/5 dark:hover:bg-[#B8860B]/10 rounded-lg transition-colors" title="Sign in">
+                  <LogIn className="w-4 h-4" />
+                  <span className="hidden sm:inline text-xs sm:text-sm font-medium ml-1">Sign in</span>
                 </Link>
-                <Link href="/signup">
-                  <Button size="sm" className="bg-[#800020] hover:bg-[#A00028] dark:bg-[#B8860B] dark:hover:bg-[#D4A020] text-white font-semibold px-2 sm:px-4 rounded-full text-xs sm:text-sm h-8 sm:h-9">
+                <Link href="/signup" className="p-2 text-[#6B6B6B] hover:text-[#800020] dark:text-[#9C9C9C] dark:hover:text-[#B8860B] hover:bg-[#800020]/5 dark:hover:bg-[#B8860B]/10 rounded-lg transition-colors sm:hidden" title="Create Account">
+                  <UserPlus className="w-4 h-4" />
+                </Link>
+                <Link href="/signup" className="hidden sm:block">
+                  <Button size="sm" className="bg-[#800020] hover:bg-[#A00028] dark:bg-[#B8860B] dark:hover:bg-[#D4A020] text-white font-semibold px-4 rounded-full text-xs sm:text-sm h-8 sm:h-9">
                     Create Account
                   </Button>
                 </Link>
