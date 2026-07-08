@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import { ShoppingBag, Heart, Moon, Sun, User, LogOut, ChevronDown } from "lucide-react"
+import { ShoppingBag, Heart, Moon, Sun, User, LogOut, ChevronDown, Shield } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useAuth } from "@/lib/context/auth-context"
 import { useCartStore } from "@/lib/stores/cart-store"
@@ -12,6 +12,7 @@ import { SearchCommand } from "@/components/search-command"
 import { MobileNav } from "@/components/mobile-nav"
 import { AnnouncementBar } from "@/components/announcement-bar"
 import { createClient, isSupabaseAvailable } from "@/lib/supabase/client"
+import { API_URL, getAuthHeaders } from "@/lib/config"
 
 const emptySubscribe = () => () => {}
 
@@ -25,6 +26,7 @@ export function Header() {
   const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false)
   const [categories, setCategories] = useState<NavCategory[]>([])
   const [shopOpen, setShopOpen] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
   const shopRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -47,6 +49,13 @@ export function Header() {
       }
     })
   }, [])
+
+  useEffect(() => {
+    if (!user) { setIsAdmin(false); return }
+    getAuthHeaders().then(headers => {
+      fetch(`${API_URL}/api/admin/verify`, { headers }).then(r => setIsAdmin(r.ok)).catch(() => setIsAdmin(false))
+    })
+  }, [user])
 
   return (
     <>
@@ -116,6 +125,11 @@ export function Header() {
 
             {user && (
               <>
+                {isAdmin && (
+                  <Link href="/admin" className="hidden sm:flex p-2 text-[#6B6B6B] hover:text-[#800020] dark:text-[#9C9C9C] dark:hover:text-[#B8860B] hover:bg-[#800020]/5 dark:hover:bg-[#B8860B]/10 rounded-lg transition-colors" title="Admin">
+                    <Shield className="w-4 h-4" />
+                  </Link>
+                )}
                 <Link href="/wishlist" className="hidden sm:flex p-2 text-[#6B6B6B] hover:text-[#800020] dark:text-[#9C9C9C] dark:hover:text-[#B8860B] hover:bg-[#800020]/5 dark:hover:bg-[#B8860B]/10 rounded-lg transition-colors">
                   <Heart className="w-4 h-4" />
                 </Link>
