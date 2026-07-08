@@ -51,17 +51,21 @@ export function Header() {
 
   useEffect(() => {
     if (!user) { setIsAdmin(false); return }
-    getAuthHeaders().then(headers => {
-      fetch(`${API_URL}/api/admin/verify`, { headers })
-        .then(r => setIsAdmin(r.ok))
-        .catch(() => {
-          const supabase = createClient()
-          supabase.from("profiles").select("role").eq("id", user.id).maybeSingle()
-            .then((res: { data?: { role: string } | null }) => setIsAdmin(res.data?.role === "admin"))
-            .catch(() => setIsAdmin(false))
-        })
-    }).catch(() => setIsAdmin(false))
+    getAuthHeaders()
+      .then(headers =>
+        fetch(`${API_URL}/api/admin/verify`, { headers })
+          .then(r => setIsAdmin(r.ok))
+          .catch(() => checkAdminFallback(user.id))
+      )
+      .catch(() => checkAdminFallback(user.id))
   }, [user])
+
+  function checkAdminFallback(userId: string) {
+    const supabase = createClient()
+    supabase.from("profiles").select("role").eq("id", userId).maybeSingle()
+      .then((res: { data?: { role: string } | null }) => setIsAdmin(res.data?.role === "admin"))
+      .catch(() => setIsAdmin(false))
+  }
 
   return (
     <>

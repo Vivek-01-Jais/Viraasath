@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
 import Link from "next/link"
-import { Menu, X, Search, LogIn, UserPlus } from "lucide-react"
+import { Menu, X, Search, LogIn, UserPlus, LogOut, User, Heart, Package } from "lucide-react"
+import { useAuth } from "@/lib/context/auth-context"
 
 type NavCategory = { id: string; slug: string; name: string }
 
 export function MobileNav({ categories }: { categories: NavCategory[] }) {
+  const { user, signOut } = useAuth()
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
@@ -47,16 +49,35 @@ export function MobileNav({ categories }: { categories: NavCategory[] }) {
               <Link href="/track" onClick={() => setOpen(false)} className="block px-3 py-2.5 rounded-lg hover:bg-[#F5F0EB] dark:hover:bg-[#242424] text-sm text-[#6B6B6B] dark:text-[#9C9C9C] transition-colors">
                 Track Order
               </Link>
-              <Link href="/wishlist" onClick={() => setOpen(false)} className="block px-3 py-2.5 rounded-lg hover:bg-[#F5F0EB] dark:hover:bg-[#242424] text-sm text-[#6B6B6B] dark:text-[#9C9C9C] transition-colors">
-                Wishlist
-              </Link>
-              <div className="border-t border-[#E5E0DB] dark:border-[#333] my-2" />
-              <Link href="/login" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-[#F5F0EB] dark:hover:bg-[#242424] text-sm font-medium text-[#6B6B6B] dark:text-[#9C9C9C] transition-colors">
-                <LogIn className="w-4 h-4" /> Sign In
-              </Link>
-              <Link href="/signup" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-[#F5F0EB] dark:hover:bg-[#242424] text-sm font-medium text-[#6B6B6B] dark:text-[#9C9C9C] transition-colors">
-                <UserPlus className="w-4 h-4" /> Create Account
-              </Link>
+              {user && (
+                <Link href="/orders" onClick={() => setOpen(false)} className="block px-3 py-2.5 rounded-lg hover:bg-[#F5F0EB] dark:hover:bg-[#242424] text-sm text-[#6B6B6B] dark:text-[#9C9C9C] transition-colors">
+                  <Package className="inline w-4 h-4 mr-2" />Orders
+                </Link>
+              )}
+              {user ? (
+                <>
+                  <div className="border-t border-[#E5E0DB] dark:border-[#333] my-2" />
+                  <Link href="/profile" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-[#F5F0EB] dark:hover:bg-[#242424] text-sm font-medium text-[#6B6B6B] dark:text-[#9C9C9C] transition-colors">
+                    <User className="w-4 h-4" /> Profile
+                  </Link>
+                  <Link href="/wishlist" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-[#F5F0EB] dark:hover:bg-[#242424] text-sm font-medium text-[#6B6B6B] dark:text-[#9C9C9C] transition-colors">
+                    <Heart className="w-4 h-4" /> Wishlist
+                  </Link>
+                  <button onClick={() => { signOut(); setOpen(false) }} className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-[#F5F0EB] dark:hover:bg-[#242424] text-sm font-medium text-[#6B6B6B] dark:text-[#9C9C9C] transition-colors w-full text-left">
+                    <LogOut className="w-4 h-4" /> Sign Out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="border-t border-[#E5E0DB] dark:border-[#333] my-2" />
+                  <Link href="/login" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-[#F5F0EB] dark:hover:bg-[#242424] text-sm font-medium text-[#6B6B6B] dark:text-[#9C9C9C] transition-colors">
+                    <LogIn className="w-4 h-4" /> Sign In
+                  </Link>
+                  <Link href="/signup" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-[#F5F0EB] dark:hover:bg-[#242424] text-sm font-medium text-[#6B6B6B] dark:text-[#9C9C9C] transition-colors">
+                    <UserPlus className="w-4 h-4" /> Create Account
+                  </Link>
+                </>
+              )}
             </nav>
           </div>
         </div>,
