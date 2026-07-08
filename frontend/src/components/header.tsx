@@ -141,7 +141,7 @@ export function Header() {
 
             <button
               onClick={openCart}
-              className="relative p-2 text-[#6B6B6B] hover:text-[#800020] dark:text-[#9C9C9C] dark:hover:text-[#B8860B] hover:bg-[#800020]/5 dark:hover:bg-[#B8860B]/10 rounded-lg transition-colors"
+              className="hidden sm:flex relative p-2 text-[#6B6B6B] hover:text-[#800020] dark:text-[#9C9C9C] dark:hover:text-[#B8860B] hover:bg-[#800020]/5 dark:hover:bg-[#B8860B]/10 rounded-lg transition-colors"
             >
               <ShoppingBag className="w-4 h-4" />
               {itemCount > 0 && (
@@ -152,7 +152,7 @@ export function Header() {
             </button>
 
             {loading ? null : user ? (
-              <div className="flex items-center gap-1 ml-1">
+              <div className="hidden sm:flex items-center gap-1 ml-1">
                 <span className="text-xs sm:text-sm text-[#6B6B6B] dark:text-[#9C9C9C] max-w-[80px] sm:max-w-[120px] truncate hidden sm:inline">
                   {user.user_metadata?.full_name ?? user.email?.split("@")[0]}
                 </span>
@@ -161,7 +161,7 @@ export function Header() {
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-1 ml-1">
+              <div className="hidden sm:flex items-center gap-1 ml-1">
                 <Link href="/login" className="p-2 text-[#6B6B6B] hover:text-[#800020] dark:text-[#9C9C9C] dark:hover:text-[#B8860B] hover:bg-[#800020]/5 dark:hover:bg-[#B8860B]/10 rounded-lg transition-colors" title="Sign in">
                   <LogIn className="w-4 h-4" />
                   <span className="hidden sm:inline text-xs sm:text-sm font-medium ml-1">Sign in</span>
