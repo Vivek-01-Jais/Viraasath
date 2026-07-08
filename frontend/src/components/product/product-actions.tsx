@@ -49,7 +49,7 @@ export function ProductActions({ product, variants }: { product: Product; varian
       )}
 
       <div className="space-y-3 pt-2">
-        <AddToCartButton product={product} variantId={variantId} />
+        <AddToCartButton product={product} variantId={variantId} hasSizes={sizes.length > 0} />
         <WishlistButton product={product} />
         <BulkEnquiry productName={product.name} />
       </div>
