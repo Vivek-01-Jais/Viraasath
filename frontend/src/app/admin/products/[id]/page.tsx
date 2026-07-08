@@ -38,6 +38,10 @@ const emptyForm: ProductForm = {
 type Category = { id: string; name: string }
 type ProductImage = { id: string; url: string; alt_text: string; position: number }
 
+function slugify(text: string): string {
+  return text.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").trim()
+}
+
 export default function AdminProductEditPage() {
   const params = useParams()
   const router = useRouter()
@@ -208,7 +212,7 @@ export default function AdminProductEditPage() {
         <div className="space-y-4">
           <div>
             <label className="text-sm font-medium text-[#800020] dark:text-[#B8860B]">Name</label>
-            <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+            <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value, slug: form.slug || slugify(e.target.value) })} />
           </div>
           <div>
             <label className="text-sm font-medium text-[#800020] dark:text-[#B8860B]">Slug</label>

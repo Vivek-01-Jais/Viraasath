@@ -94,7 +94,7 @@ export function ProductCard({ product }: { product: Product }) {
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.5, ease: "easeOut" }}
     >
-      <Link href={`/products/${product.slug}`} className="group block">
+      <Link href={`/products/${product.slug || product.id}`} className="group block">
         <div className="relative aspect-[3/4] bg-[#F5F0EB] dark:bg-[#242424] overflow-hidden rounded-xl mb-4 shadow-sm group-hover:shadow-xl group-hover:shadow-[#800020]/10 dark:group-hover:shadow-[#B8860B]/10 transition-all duration-500">
           <ProductImage product={product} />
           {hasDiscount && (

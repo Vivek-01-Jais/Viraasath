@@ -65,7 +65,10 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 
   const { createClient } = await import("@/lib/supabase/client")
   const supabase = createClient()
-  const { data } = await supabase
+
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug)
+
+  let query = supabase
     .from("products")
     .select(`
       *,
@@ -73,8 +76,14 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       product_variants(*),
       product_images(*)
     `)
-    .eq("slug", slug)
-    .maybeSingle()
+
+  if (isUuid) {
+    query = query.eq("id", slug)
+  } else {
+    query = query.eq("slug", slug)
+  }
+
+  const { data } = await query.maybeSingle()
   return data
 }
 
