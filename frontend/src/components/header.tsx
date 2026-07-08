@@ -54,7 +54,7 @@ export function Header() {
     getAuthHeaders()
       .then(headers =>
         fetch(`${API_URL}/api/admin/verify`, { headers })
-          .then(r => setIsAdmin(r.ok))
+          .then(r => { if (!r.ok) throw new Error(); setIsAdmin(true) })
           .catch(() => checkAdminFallback(user.id))
       )
       .catch(() => checkAdminFallback(user.id))
