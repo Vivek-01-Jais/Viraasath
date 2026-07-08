@@ -53,7 +53,15 @@ export function Header() {
   useEffect(() => {
     if (!user) { setIsAdmin(false); return }
     getAuthHeaders().then(headers => {
-      fetch(`${API_URL}/api/admin/verify`, { headers }).then(r => setIsAdmin(r.ok)).catch(() => setIsAdmin(false))
+      fetch(`${API_URL}/api/admin/verify`, { headers })
+        .then(r => setIsAdmin(r.ok))
+        .catch(() => {
+          // Fallback: check Supabase directly if API unreachable
+          const supabase = createClient()
+          supabase.from("profiles").select("role").eq("id", user.id).maybeSingle().then((profile: { data?: { role: string } | null }) => {
+            setIsAdmin(profile.data?.role === "admin")
+          }).catch(() => setIsAdmin(false))
+        })
     })
   }, [user])
 

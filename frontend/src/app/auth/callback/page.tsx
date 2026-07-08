@@ -16,8 +16,8 @@ function CallbackInner() {
         const supabase = createClient()
         const { error } = await supabase.auth.exchangeCodeForSession(code)
         if (error) {
-          setMessage("Authentication failed. Redirecting...")
-          setTimeout(() => { window.location.href = "/login?error=Auth failed" }, 2000)
+          setMessage(`${error.message}. Redirecting...`)
+          setTimeout(() => { window.location.href = `/login?error=${encodeURIComponent(error.message)}` }, 3000)
           return
         }
       }

@@ -20,6 +20,12 @@ export default function LoginPage() {
     }
   }, [user, authLoading])
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const err = params.get("error")
+    if (err) setError(decodeURIComponent(err))
+  }, [])
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setPending(true)
