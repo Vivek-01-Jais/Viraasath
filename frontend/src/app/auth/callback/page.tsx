@@ -1,11 +1,10 @@
 "use client"
 
 import { Suspense, useEffect, useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 
 function CallbackInner() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const [message, setMessage] = useState("Completing sign in...")
 
@@ -27,7 +26,7 @@ function CallbackInner() {
     }
 
     handleCallback()
-  }, [searchParams, router])
+  }, [searchParams])
 
   return (
     <p className="text-[#6B6B6B] dark:text-[#9C9C9C]">{message}</p>

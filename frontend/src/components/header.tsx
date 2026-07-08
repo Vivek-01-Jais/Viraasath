@@ -126,14 +126,14 @@ export function Header() {
             {user && (
               <>
                 {isAdmin && (
-                  <Link href="/admin" className="hidden sm:flex p-2 text-[#6B6B6B] hover:text-[#800020] dark:text-[#9C9C9C] dark:hover:text-[#B8860B] hover:bg-[#800020]/5 dark:hover:bg-[#B8860B]/10 rounded-lg transition-colors" title="Admin">
+                  <Link href="/admin" className="p-2 text-[#6B6B6B] hover:text-[#800020] dark:text-[#9C9C9C] dark:hover:text-[#B8860B] hover:bg-[#800020]/5 dark:hover:bg-[#B8860B]/10 rounded-lg transition-colors" title="Admin">
                     <Shield className="w-4 h-4" />
                   </Link>
                 )}
-                <Link href="/wishlist" className="hidden sm:flex p-2 text-[#6B6B6B] hover:text-[#800020] dark:text-[#9C9C9C] dark:hover:text-[#B8860B] hover:bg-[#800020]/5 dark:hover:bg-[#B8860B]/10 rounded-lg transition-colors">
+                <Link href="/wishlist" className="p-2 text-[#6B6B6B] hover:text-[#800020] dark:text-[#9C9C9C] dark:hover:text-[#B8860B] hover:bg-[#800020]/5 dark:hover:bg-[#B8860B]/10 rounded-lg transition-colors">
                   <Heart className="w-4 h-4" />
                 </Link>
-                <Link href="/profile" className="hidden sm:flex p-2 text-[#6B6B6B] hover:text-[#800020] dark:text-[#9C9C9C] dark:hover:text-[#B8860B] hover:bg-[#800020]/5 dark:hover:bg-[#B8860B]/10 rounded-lg transition-colors">
+                <Link href="/profile" className="p-2 text-[#6B6B6B] hover:text-[#800020] dark:text-[#9C9C9C] dark:hover:text-[#B8860B] hover:bg-[#800020]/5 dark:hover:bg-[#B8860B]/10 rounded-lg transition-colors">
                   <User className="w-4 h-4" />
                 </Link>
               </>
