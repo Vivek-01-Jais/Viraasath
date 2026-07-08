@@ -73,7 +73,7 @@ export function Header() {
       <header className="sticky top-0 z-30 border-b border-[#800020]/10 dark:border-[#B8860B]/10 bg-[#F8F8FF]/95 dark:bg-[#1A1A1A]/95 backdrop-blur-md supports-[backdrop-filter]:bg-[#F8F8FF]/80 dark:supports-[backdrop-filter]:bg-[#1A1A1A]/80">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-4 h-16">
           <div className="flex items-center gap-4">
-            <MobileNav categories={categories} />
+            <MobileNav categories={categories} isAdmin={isAdmin} />
             <Link href="/" className="flex items-center gap-2.5">
               <span className="font-heading text-xl font-bold tracking-tight text-[#800020] dark:text-[#B8860B]">
                 वि rasaath
