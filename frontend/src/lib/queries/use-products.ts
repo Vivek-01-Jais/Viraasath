@@ -86,7 +86,32 @@ async function fetchProducts(filters?: {
     .order("created_at", { ascending: false })
     .range(from, to)
 
-  return { products: data ?? [], total: count ?? 0 }
+  const products = (data ?? []) as Product[]
+
+  if (products.length > 0) {
+    const pIds = products.map(p => p.id)
+    const { data: reviewStats } = await supabase
+      .from("reviews")
+      .select("product_id, rating")
+      .in("product_id", pIds)
+      .eq("is_approved", true)
+
+    if (reviewStats) {
+      const stats: Record<string, { total: number; sum: number }> = {}
+      for (const r of reviewStats as { product_id: string; rating: number }[]) {
+        if (!stats[r.product_id]) stats[r.product_id] = { total: 0, sum: 0 }
+        stats[r.product_id].total++
+        stats[r.product_id].sum += r.rating
+      }
+      for (const p of products) {
+        const s = stats[p.id]
+        ;(p as Record<string, unknown>).review_avg = s ? s.sum / s.total : 0
+        ;(p as Record<string, unknown>).review_count = s?.total ?? 0
+      }
+    }
+  }
+
+  return { products, total: count ?? 0 }
 }
 
 async function fetchProductBySlug(slug: string): Promise<Product | null> {

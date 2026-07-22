@@ -40,4 +40,6 @@ export type Product = {
   category: Category | null
   product_variants: ProductVariant[]
   product_images: ProductImage[]
+  review_avg?: number
+  review_count?: number
 }
