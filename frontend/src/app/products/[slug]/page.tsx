@@ -11,6 +11,8 @@ import { ReviewSection } from "@/components/review/review-section"
 import { ProductActions } from "@/components/product/product-actions"
 import { BulkEnquiry } from "@/components/bulk-enquiry"
 import { RecentlyViewedTracker } from "@/components/product/recently-viewed-tracker"
+import { Recommendations } from "@/components/product/recommendations"
+import { DeliveryEstimate } from "@/components/delivery-estimate"
 import { Check } from "lucide-react"
 
 export const dynamic = "force-dynamic"
@@ -111,7 +113,13 @@ export default async function ProductDetailPage({ params }: Props) {
                     <span className="font-medium text-[#333] dark:text-[#F0EDE8]">Material:</span> {product.material}
                   </p>
                 )}
-              </div>
+                {inStock && (
+                  <div className="flex items-center gap-2 mt-3 text-xs text-emerald-600 dark:text-emerald-400">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
+                    <DeliveryEstimate />
+                  </div>
+                )}
+              </div> 
 
               <div className="border-t border-[#E5E0DB] dark:border-[#333]" />
 
@@ -166,6 +174,10 @@ export default async function ProductDetailPage({ params }: Props) {
           </div>
 
           <RecentlyViewedTracker product={product} />
+
+          {product.category && (
+            <Recommendations categoryId={product.category_id} currentId={product.id} />
+          )}
         </div>
       </main>
     </div>
