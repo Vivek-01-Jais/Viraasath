@@ -10,6 +10,7 @@ import { WishlistButton } from "@/components/product/wishlist-button"
 import { ReviewSection } from "@/components/review/review-section"
 import { ProductActions } from "@/components/product/product-actions"
 import { BulkEnquiry } from "@/components/bulk-enquiry"
+import { RecentlyViewedTracker } from "@/components/product/recently-viewed-tracker"
 import { Check } from "lucide-react"
 
 export const dynamic = "force-dynamic"
@@ -163,6 +164,8 @@ export default async function ProductDetailPage({ params }: Props) {
           <div className="mt-16 max-w-2xl">
             <ReviewSection productId={product.id} />
           </div>
+
+          <RecentlyViewedTracker product={product} />
         </div>
       </main>
     </div>
