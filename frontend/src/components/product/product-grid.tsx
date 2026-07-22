@@ -2,21 +2,38 @@
 
 import { useSearchParams, usePathname } from "next/navigation"
 import Link from "next/link"
-import { Search, X, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, X, ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ProductCard } from "@/components/product/product-card"
 import { ProductGridSkeleton } from "@/components/ui/skeleton"
+import { ProductFilters } from "@/components/product/product-filters"
 import { useCategories, useProducts } from "@/lib/queries/use-products"
+import { useState } from "react"
 
 const PAGE_SIZE = 20
 
 export function ProductGrid() {
   const searchParams = useSearchParams()
   const pathname = usePathname()
+  const [showFilters, setShowFilters] = useState(false)
 
   const category = searchParams.get("category") ?? undefined
   const query = searchParams.get("q") ?? undefined
   const page = Math.max(1, Number(searchParams.get("page")) || 1)
+  const sizes = searchParams.getAll("size")
+  const priceRangeIndex = searchParams.get("priceRange")
+  let minPrice: number | undefined
+  let maxPrice: number | undefined
+  if (priceRangeIndex != null) {
+    const ranges = [
+      { min: 0, max: 1000 },
+      { min: 1000, max: 2500 },
+      { min: 2500, max: 5000 },
+      { min: 5000, max: 999999 },
+    ]
+    const range = ranges[Number(priceRangeIndex)]
+    if (range) { minPrice = range.min; maxPrice = range.max }
+  }
 
   const { data: categories, isLoading: catsLoading } = useCategories()
   const { data: result, isLoading: productsLoading } = useProducts({
@@ -24,6 +41,9 @@ export function ProductGrid() {
     query,
     page,
     pageSize: PAGE_SIZE,
+    sizes: sizes.length > 0 ? sizes : undefined,
+    minPrice,
+    maxPrice,
   })
 
   if (catsLoading || productsLoading) return <ProductGridSkeleton />
@@ -110,55 +130,72 @@ export function ProductGrid() {
           <Link href="/products" className="ml-1 p-1 hover:text-[#800020] dark:hover:text-[#B8860B]"><X className="w-3.5 h-3.5" /></Link>
         </div>
       )}
-      <p className="text-sm text-[#6B6B6B] dark:text-[#9C9C9C] mb-6">{total} product{total !== 1 ? "s" : ""}</p>
 
-      {products.length === 0 ? (
-        <div className="text-center py-24">
-          <p className="text-[#6B6B6B] dark:text-[#9C9C9C]">No products found.</p>
-          <Link href="/products">
-            <Button variant="outline" className="mt-4">View all products</Button>
-          </Link>
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-sm text-[#6B6B6B] dark:text-[#9C9C9C]">{total} product{total !== 1 ? "s" : ""}</p>
+        <button
+          onClick={() => setShowFilters(!showFilters)}
+          className="lg:hidden flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border border-[#E5E0DB] dark:border-[#333] text-[#6B6B6B] dark:text-[#9C9C9C] hover:border-[#800020] dark:hover:border-[#B8860B] transition-colors"
+        >
+          <SlidersHorizontal className="w-3.5 h-3.5" /> Filters
+        </button>
+      </div>
+
+      <div className="flex gap-8">
+        <div className={`${showFilters ? "block" : "hidden"} lg:block`}>
+          <ProductFilters />
         </div>
-      ) : (
-        <>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-12">
-              {page > 1 && (
-                <Link href={buildPageUrl(page - 1)} className="p-2 rounded-lg border border-[#E5E0DB] dark:border-[#333] text-[#6B6B6B] dark:text-[#9C9C9C] hover:border-[#800020] dark:hover:border-[#B8860B] transition-colors">
-                  <ChevronLeft className="w-4 h-4" />
-                </Link>
-              )}
-              {Array.from({ length: totalPages }, (_, i) => i + 1)
-                .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
-                .map((p, idx, arr) => (
-                  <span key={p} className="flex items-center">
-                    {idx > 0 && arr[idx - 1] !== p - 1 && <span className="px-1 text-[#9C9C9C]">...</span>}
-                    <Link
-                      href={buildPageUrl(p)}
-                      className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm transition-colors ${
-                        p === page
-                          ? "bg-[#800020] text-white dark:bg-[#B8860B]"
-                          : "border border-[#E5E0DB] dark:border-[#333] text-[#6B6B6B] dark:text-[#9C9C9C] hover:border-[#800020] dark:hover:border-[#B8860B]"
-                      }`}
-                    >
-                      {p}
-                    </Link>
-                  </span>
-                ))}
-              {page < totalPages && (
-                <Link href={buildPageUrl(page + 1)} className="p-2 rounded-lg border border-[#E5E0DB] dark:border-[#333] text-[#6B6B6B] dark:text-[#9C9C9C] hover:border-[#800020] dark:hover:border-[#B8860B] transition-colors">
-                  <ChevronRight className="w-4 h-4" />
-                </Link>
-              )}
+
+        <div className="flex-1 min-w-0">
+          {products.length === 0 ? (
+            <div className="text-center py-24">
+              <p className="text-[#6B6B6B] dark:text-[#9C9C9C]">No products found.</p>
+              <Link href="/products">
+                <Button variant="outline" className="mt-4">View all products</Button>
+              </Link>
             </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-8">
+                {products.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 mt-12">
+                  {page > 1 && (
+                    <Link href={buildPageUrl(page - 1)} className="p-2 rounded-lg border border-[#E5E0DB] dark:border-[#333] text-[#6B6B6B] dark:text-[#9C9C9C] hover:border-[#800020] dark:hover:border-[#B8860B] transition-colors">
+                      <ChevronLeft className="w-4 h-4" />
+                    </Link>
+                  )}
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+                    .map((p, idx, arr) => (
+                      <span key={p} className="flex items-center">
+                        {idx > 0 && arr[idx - 1] !== p - 1 && <span className="px-1 text-[#9C9C9C]">...</span>}
+                        <Link
+                          href={buildPageUrl(p)}
+                          className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm transition-colors ${
+                            p === page
+                              ? "bg-[#800020] text-white dark:bg-[#B8860B]"
+                              : "border border-[#E5E0DB] dark:border-[#333] text-[#6B6B6B] dark:text-[#9C9C9C] hover:border-[#800020] dark:hover:border-[#B8860B]"
+                          }`}
+                        >
+                          {p}
+                        </Link>
+                      </span>
+                    ))}
+                  {page < totalPages && (
+                    <Link href={buildPageUrl(page + 1)} className="p-2 rounded-lg border border-[#E5E0DB] dark:border-[#333] text-[#6B6B6B] dark:text-[#9C9C9C] hover:border-[#800020] dark:hover:border-[#B8860B] transition-colors">
+                      <ChevronRight className="w-4 h-4" />
+                    </Link>
+                  )}
+                </div>
+              )}
+            </>
           )}
-        </>
-      )}
+        </div>
+      </div>
     </>
   )
 }

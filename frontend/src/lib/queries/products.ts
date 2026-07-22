@@ -20,6 +20,9 @@ export async function getProducts(filters?: {
   query?: string
   page?: number
   pageSize?: number
+  minPrice?: number
+  maxPrice?: number
+  sizes?: string[]
 }): Promise<{ products: Product[]; total: number }> {
   const demo = await getDemoModule()
   if (demo) {
@@ -33,6 +36,20 @@ export async function getProducts(filters?: {
   const pageSize = filters?.pageSize ?? 20
   const from = (page - 1) * pageSize
   const to = from + pageSize - 1
+
+  let productIds: string[] | undefined
+
+  if (filters?.sizes && filters.sizes.length > 0) {
+    const { data: variants } = await supabase
+      .from("product_variants")
+      .select("product_id")
+      .in("size", filters.sizes)
+      .gt("stock_quantity", 0)
+
+    const rawVariants = (variants ?? []) as { product_id: string }[]
+    productIds = [...new Set(rawVariants.map(v => v.product_id))]
+    if (productIds.length === 0) return { products: [], total: 0 }
+  }
 
   let query = supabase
     .from("products")
@@ -52,11 +69,38 @@ export async function getProducts(filters?: {
     query = query.textSearch("search_vector", filters.query, { config: "english" })
   }
 
+  if (filters?.minPrice != null) {
+    query = query.gte("price", filters.minPrice)
+  }
+
+  if (filters?.maxPrice != null) {
+    query = query.lte("price", filters.maxPrice)
+  }
+
+  if (productIds) {
+    query = query.in("id", productIds)
+  }
+
   const { data, count } = await query
     .order("created_at", { ascending: false })
     .range(from, to)
 
   return { products: data ?? [], total: count ?? 0 }
+}
+
+export async function getAllSizes(): Promise<string[]> {
+  const demo = await getDemoModule()
+  if (demo) return (demo as { getDemoSizes?: () => string[] }).getDemoSizes?.() ?? []
+
+  const { createClient } = await import("@/lib/supabase/client")
+  const supabase = createClient()
+  const { data } = await supabase
+    .from("product_variants")
+    .select("size")
+    .gt("stock_quantity", 0)
+
+  const rawData = (data ?? []) as { size: string }[]
+  return [...new Set(rawData.map(v => v.size))].sort()
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {

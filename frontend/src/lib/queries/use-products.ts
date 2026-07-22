@@ -21,6 +21,9 @@ async function fetchProducts(filters?: {
   query?: string
   page?: number
   pageSize?: number
+  minPrice?: number
+  maxPrice?: number
+  sizes?: string[]
 }): Promise<{ products: Product[]; total: number }> {
   const demo = await getDemoModule()
   if (demo) {
@@ -34,6 +37,20 @@ async function fetchProducts(filters?: {
   const pageSize = filters?.pageSize ?? 20
   const from = (page - 1) * pageSize
   const to = from + pageSize - 1
+
+  let productIds: string[] | undefined
+
+  if (filters?.sizes && filters.sizes.length > 0) {
+    const { data: variants } = await supabase
+      .from("product_variants")
+      .select("product_id")
+      .in("size", filters.sizes)
+      .gt("stock_quantity", 0)
+
+    const rawVariants = (variants ?? []) as { product_id: string }[]
+    productIds = [...new Set(rawVariants.map(v => v.product_id))]
+    if (productIds.length === 0) return { products: [], total: 0 }
+  }
 
   let query = supabase
     .from("products")
@@ -51,6 +68,18 @@ async function fetchProducts(filters?: {
 
   if (filters?.query) {
     query = query.textSearch("search_vector", filters.query, { config: "english" })
+  }
+
+  if (filters?.minPrice != null) {
+    query = query.gte("price", filters.minPrice)
+  }
+
+  if (filters?.maxPrice != null) {
+    query = query.lte("price", filters.maxPrice)
+  }
+
+  if (productIds) {
+    query = query.in("id", productIds)
   }
 
   const { data, count } = await query
@@ -113,6 +142,9 @@ export function useProducts(filters?: {
   query?: string
   page?: number
   pageSize?: number
+  minPrice?: number
+  maxPrice?: number
+  sizes?: string[]
 }) {
   return useQuery({
     queryKey: ["products", filters],
@@ -132,6 +164,29 @@ export function useFeaturedProducts() {
   return useQuery({
     queryKey: ["featured-products"],
     queryFn: fetchFeaturedProducts,
+    staleTime: 1000 * 60 * 15,
+  })
+}
+
+async function fetchAllSizes(): Promise<string[]> {
+  const demo = await getDemoModule()
+  if (demo) return (demo as { getDemoSizes?: () => string[] }).getDemoSizes?.() ?? []
+
+  const { createClient } = await import("@/lib/supabase/client")
+  const supabase = createClient()
+  const { data } = await supabase
+    .from("product_variants")
+    .select("size")
+    .gt("stock_quantity", 0)
+
+  const rawData = (data ?? []) as { size: string }[]
+  return [...new Set(rawData.map(v => v.size))].sort()
+}
+
+export function useAllSizes() {
+  return useQuery({
+    queryKey: ["all-sizes"],
+    queryFn: fetchAllSizes,
     staleTime: 1000 * 60 * 15,
   })
 }
