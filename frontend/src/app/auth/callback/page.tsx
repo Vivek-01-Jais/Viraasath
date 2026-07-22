@@ -37,7 +37,11 @@ function CallbackInner() {
 
     handleCallback()
 
-    return () => { cancelled = true; listener.subscription.unsubscribe() }
+    const timeout = setTimeout(() => {
+      if (!cancelled) window.location.href = "/"
+    }, 5000)
+
+    return () => { cancelled = true; clearTimeout(timeout); listener.subscription.unsubscribe() }
   }, [searchParams])
 
   return (

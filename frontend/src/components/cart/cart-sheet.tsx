@@ -18,7 +18,6 @@ export function CartSheet() {
   const { user } = useAuth()
   const router = useRouter()
   const { items, isOpen, loading, fetchCart, removeItem, updateQuantity, updateVariant, closeCart, totalItems, totalPrice, initLocalCart } = useCartStore()
-  const userId = user?.id
 
   useEffect(() => {
     if (!isOpen) return
@@ -113,7 +112,7 @@ export function CartSheet() {
                           <p className="text-sm text-[#6B6B6B] dark:text-[#9C9C9C] mt-0.5">{formatPrice(price)}</p>
                           <div className="flex items-center gap-2 mt-2">
                             <button
-                              onClick={() => userId && updateQuantity(userId, item.id, item.quantity - 1)}
+                              onClick={() => updateQuantity(user?.id ?? null, item.id, item.quantity - 1)}
                               disabled={item.quantity <= 1}
                               className="p-2 rounded border border-[#E5E0DB] dark:border-[#333] hover:bg-[#F5F0EB] dark:hover:bg-[#242424] text-[#6B6B6B] dark:text-[#9C9C9C] disabled:opacity-30 disabled:cursor-not-allowed"
                             >
@@ -121,7 +120,7 @@ export function CartSheet() {
                             </button>
                             <span className="text-sm w-6 text-center text-[#333] dark:text-[#F0EDE8]">{item.quantity}</span>
                             <button
-                              onClick={() => userId && updateQuantity(userId, item.id, item.quantity + 1)}
+                              onClick={() => updateQuantity(user?.id ?? null, item.id, item.quantity + 1)}
                               className="p-2 rounded border border-[#E5E0DB] dark:border-[#333] hover:bg-[#F5F0EB] dark:hover:bg-[#242424] text-[#6B6B6B] dark:text-[#9C9C9C]"
                             >
                               <Plus className="w-3 h-3" />
@@ -135,7 +134,7 @@ export function CartSheet() {
                                 const outOfStock = variant ? variant.stock_quantity === 0 : true
                                 return (
                                   <button key={size} disabled={outOfStock || !variant}
-                                    onClick={() => variant && userId && updateVariant(userId, item.id, variant.id)}
+                                    onClick={() => variant && updateVariant(user?.id ?? null, item.id, variant.id)}
                                     className={`text-[9px] px-1.5 py-0.5 rounded font-medium transition-all ${
                                       outOfStock ? "text-[#9C9C9C] line-through bg-[#F5F0EB] dark:bg-[#242424]/50 cursor-not-allowed"
                                       : isSelected ? "bg-[#800020] dark:bg-[#B8860B] text-white"
@@ -148,7 +147,7 @@ export function CartSheet() {
                           )}
                         </div>
                         <button
-                          onClick={() => userId && removeItem(userId, item.id)}
+                          onClick={() => removeItem(user?.id ?? null, item.id)}
                           className="p-2 text-[#6B6B6B] dark:text-[#9C9C9C] hover:text-red-500 shrink-0 self-start"
                         >
                           <Trash2 className="w-4 h-4" />
